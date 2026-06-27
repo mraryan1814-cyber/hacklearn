@@ -1,0 +1,15 @@
+{
+  "name": "HackLearn C Programming",
+  "short_name": "HackLearn",
+  "start_url": "/hacklearn/",
+  "display": "standalone",
+  "background_color": "#0a0e1a",
+  "theme_color": "#00f5a0",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
