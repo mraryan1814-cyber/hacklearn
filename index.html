@@ -1783,5 +1783,10 @@ function showRoad(which) {
 renderTopics();
 updateProgress();
 </script>
+  <script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/hacklearn/sw.js');
+}
+  </script>
 </body>
 </html>
