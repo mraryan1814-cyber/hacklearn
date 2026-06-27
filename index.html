@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HackLearn — C Programming</title>
+<style>
+:root {
+  --bg: #0a0a14;
+  --bg2: #10101e;
+  --bg3: #16162a;
+  --card: #1a1a2e;
+  --card2: #1e1e3a;
+  --accent: #7c3aed;
+  --accent2: #a855f7;
+  --accent3: #c084fc;
+  --cyan: #22d3ee;
+  --orange: #f97316;
+  --red: #ef4444;
+  --gold: #fbbf24;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --border: #2d2d4e;
+  --success: #10b981;
+  --warning: #f59e0b;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--bg2); }
+::-webkit-scrollbar-thumb { background:var(--accent); border-radius:3px; }
+
+/* ── SCREENS ── */
+.screen { display:none; min-height:100vh; }
+.screen.active { display:block; }
+
+/* ══════════════════════════════════════
+   LANG SELECT SCREEN
+══════════════════════════════════════ */
+#langScreen {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  min-height:100vh; padding:24px;
+  background: radial-gradient(ellipse at 20% 20%, #1a0a3e 0%, var(--bg) 60%),
+              radial-gradient(ellipse at 80% 80%, #0a1a3e 0%, transparent 60%);
+}
+.lang-logo { font-size:56px; margin-bottom:16px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.lang-title { font-size:32px; font-weight:900; background:linear-gradient(135deg,var(--accent2),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px; text-align:center; }
+.lang-sub { color:var(--text2); text-align:center; margin-bottom:40px; font-size:15px; }
+.lang-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; width:100%; max-width:500px; }
+.lang-btn {
+  background:var(--card); border:2px solid var(--border); border-radius:16px;
+  padding:24px 16px; text-align:center; cursor:pointer;
+  transition:all .3s; position:relative; overflow:hidden;
+}
+.lang-btn:hover, .lang-btn.selected {
+  border-color:var(--accent); background:var(--card2);
+  transform:translateY(-4px); box-shadow:0 8px 24px rgba(124,58,237,.3);
+}
+.lang-btn .lb-icon { font-size:36px; margin-bottom:8px; display:block; }
+.lang-btn .lb-name { font-size:18px; font-weight:700; color:var(--text); }
+.lang-btn .lb-sub { font-size:11px; color:var(--text2); margin-top:4px; }
+.lang-btn .lb-badge { position:absolute; top:10px; right:10px; background:var(--accent); color:#fff; font-size:9px; padding:2px 6px; border-radius:10px; font-weight:700; }
+.lang-start-btn {
+  margin-top:32px; background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff; border:none; border-radius:14px; padding:16px 48px;
+  font-size:18px; font-weight:800; cursor:pointer; width:100%; max-width:500px;
+  transition:all .3s; box-shadow:0 4px 20px rgba(124,58,237,.4);
+}
+.lang-start-btn:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(124,58,237,.6); }
+
+/* ══════════════════════════════════════
+   MAIN APP SCREEN
+══════════════════════════════════════ */
+#appScreen { padding-bottom:90px; }
+
+.top-bar {
+  background:var(--bg2); border-bottom:1px solid var(--border);
+  padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:100;
+}
+.top-logo { font-size:20px; font-weight:900; background:linear-gradient(135deg,var(--accent2),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.top-stats { display:flex; gap:12px; align-items:center; }
+.stat-pill { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:5px 12px; font-size:13px; font-weight:600; }
+.stat-pill .si { margin-right:4px; }
+.mode-toggle {
+  background:var(--card); border:1px solid var(--border); border-radius:20px;
+  padding:5px 12px; font-size:12px; font-weight:700; cursor:pointer;
+  transition:all .3s; color:var(--text2);
+}
+.mode-toggle.online { border-color:var(--cyan); color:var(--cyan); background:rgba(34,211,238,.1); }
+
+/* ── HOME TAB ── */
+.home-hero {
+  background:linear-gradient(135deg,#1a0a3e,#0a1a2e);
+  padding:24px 16px; border-bottom:1px solid var(--border);
+}
+.home-hero h1 { font-size:22px; font-weight:900; margin-bottom:6px; }
+.home-hero p { color:var(--text2); font-size:14px; line-height:1.6; }
+.progress-bar-wrap { margin-top:16px; }
+.progress-label { display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; }
+.progress-bar { height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:4px; transition:width .5s; }
+
+.section-title {
+  font-size:14px; font-weight:800; color:var(--text2); text-transform:uppercase;
+  letter-spacing:1px; padding:20px 16px 10px;
+}
+
+/* ── TOPIC CARDS ── */
+.topics-grid { padding:0 16px; display:flex; flex-direction:column; gap:12px; }
+.topic-card {
+  background:var(--card); border:1px solid var(--border); border-radius:16px;
+  overflow:hidden; cursor:pointer; transition:all .3s;
+}
+.topic-card:hover { border-color:var(--accent); transform:translateX(4px); box-shadow:0 4px 20px rgba(124,58,237,.2); }
+.topic-card.locked { opacity:.6; cursor:not-allowed; }
+.topic-card.completed { border-color:var(--success); }
+.tc-header { display:flex; align-items:center; gap:14px; padding:16px; }
+.tc-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.tc-info { flex:1; }
+.tc-title { font-size:16px; font-weight:700; margin-bottom:4px; }
+.tc-sub { font-size:12px; color:var(--text2); }
+.tc-meta { display:flex; gap:8px; margin-top:6px; flex-wrap:wrap; }
+.tc-tag { font-size:10px; padding:2px 8px; border-radius:10px; font-weight:600; }
+.tag-easy { background:rgba(16,185,129,.15); color:var(--success); }
+.tag-medium { background:rgba(245,158,11,.15); color:var(--warning); }
+.tag-hard { background:rgba(239,68,68,.15); color:var(--red); }
+.tag-cyber { background:rgba(124,58,237,.15); color:var(--accent2); }
+.tc-arrow { color:var(--text2); font-size:18px; }
+.tc-progress { height:4px; background:var(--border); }
+.tc-progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .5s; }
+
+/* ── LEVEL SCREEN ── */
+#levelScreen { padding:0 0 90px; }
+.level-header {
+  background:linear-gradient(135deg,#1a0a3e,#0a1a2e);
+  padding:20px 16px; border-bottom:1px solid var(--border);
+}
+.back-btn { display:flex; align-items:center; gap:8px; color:var(--accent2); font-size:14px; font-weight:600; cursor:pointer; margin-bottom:12px; }
+.level-topic-name { font-size:22px; font-weight:900; }
+.level-topic-sub { color:var(--text2); font-size:13px; margin-top:4px; }
+.levels-list { padding:16px; display:flex; flex-direction:column; gap:12px; }
+.level-item {
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  padding:16px; cursor:pointer; transition:all .3s; display:flex; align-items:center; gap:14px;
+}
+.level-item:hover { border-color:var(--accent); background:var(--card2); }
+.level-item.locked { opacity:.5; cursor:not-allowed; }
+.level-item.completed { border-color:var(--success); }
+.level-num { width:42px; height:42px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; flex-shrink:0; }
+.level-item.unlocked .level-num { border-color:var(--accent); color:var(--accent2); background:rgba(124,58,237,.1); }
+.level-item.completed .level-num { border-color:var(--success); color:var(--success); background:rgba(16,185,129,.1); }
+.level-info { flex:1; }
+.level-name { font-size:15px; font-weight:700; }
+.level-desc { font-size:12px; color:var(--text2); margin-top:3px; }
+.level-xp { font-size:12px; color:var(--gold); font-weight:700; }
+
+/* ── LESSON SCREEN ── */
+#lessonScreen { padding:0 0 90px; }
+.lesson-header {
+  background:var(--bg2); border-bottom:1px solid var(--border);
+  padding:16px; position:sticky; top:0; z-index:50;
+}
+.lesson-tabs { display:flex; gap:8px; margin-top:12px; }
+.l-tab {
+  flex:1; padding:10px; text-align:center; border-radius:10px;
+  font-size:13px; font-weight:700; cursor:pointer; border:1px solid var(--border);
+  color:var(--text2); transition:all .3s;
+}
+.l-tab.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.lesson-body { padding:16px; }
+
+/* Theory */
+.theory-block { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:16px; line-height:1.8; font-size:14px; }
+.theory-block h2 { font-size:18px; margin-bottom:12px; color:var(--accent2); }
+.theory-block h3 { font-size:15px; margin:16px 0 8px; color:var(--cyan); }
+.theory-block p { margin-bottom:12px; }
+.code-block { background:#0d0d1a; border:1px solid var(--border); border-radius:10px; padding:16px; margin:12px 0; font-family:'Courier New',monospace; font-size:13px; overflow-x:auto; position:relative; }
+.code-block pre { color:#e2e8f0; }
+.code-kw { color:#a78bfa; }
+.code-fn { color:#22d3ee; }
+.code-str { color:#34d399; }
+.code-cm { color:#64748b; font-style:italic; }
+.code-num { color:#f97316; }
+.copy-btn { position:absolute; top:8px; right:8px; background:var(--accent); color:#fff; border:none; border-radius:6px; padding:4px 10px; font-size:11px; cursor:pointer; }
+.tip-box { background:rgba(124,58,237,.1); border:1px solid rgba(124,58,237,.3); border-radius:10px; padding:14px; margin:12px 0; }
+.tip-box .tip-label { color:var(--accent2); font-weight:700; font-size:12px; margin-bottom:6px; }
+.cyber-box { background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.2); border-radius:10px; padding:14px; margin:12px 0; }
+.cyber-box .cb-label { color:var(--cyan); font-weight:700; font-size:12px; margin-bottom:6px; }
+
+/* Practice */
+.practice-area { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:16px; }
+.pa-header { padding:14px 16px; background:var(--card2); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.pa-title { font-size:14px; font-weight:700; }
+.pa-code { width:100%; background:#0d0d1a; color:#e2e8f0; border:none; padding:16px; font-family:'Courier New',monospace; font-size:13px; resize:vertical; min-height:200px; outline:none; }
+.pa-footer { padding:12px 16px; display:flex; gap:10px; }
+.run-btn { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; border:none; border-radius:10px; padding:10px 20px; font-size:14px; font-weight:700; cursor:pointer; flex:1; }
+.hint-btn { background:var(--card2); color:var(--accent2); border:1px solid var(--border); border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; cursor:pointer; }
+.output-box { background:#050510; border-top:1px solid var(--border); padding:14px 16px; font-family:'Courier New',monospace; font-size:13px; min-height:60px; color:#22d3ee; }
+.output-box.error { color:var(--red); }
+
+/* Quiz */
+.quiz-area { }
+.quiz-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:16px; }
+.quiz-q { font-size:16px; font-weight:700; margin-bottom:16px; line-height:1.5; }
+.quiz-opts { display:flex; flex-direction:column; gap:10px; }
+.quiz-opt {
+  background:var(--card2); border:2px solid var(--border); border-radius:12px;
+  padding:14px 16px; cursor:pointer; transition:all .3s; font-size:14px; font-weight:500;
+}
+.quiz-opt:hover { border-color:var(--accent); background:rgba(124,58,237,.1); }
+.quiz-opt.correct { border-color:var(--success); background:rgba(16,185,129,.1); color:var(--success); }
+.quiz-opt.wrong { border-color:var(--red); background:rgba(239,68,68,.1); color:var(--red); }
+.quiz-exp { background:rgba(124,58,237,.08); border:1px solid rgba(124,58,237,.2); border-radius:10px; padding:14px; margin-top:12px; font-size:13px; line-height:1.6; display:none; }
+.quiz-exp.show { display:block; }
+.next-q-btn { width:100%; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:800; cursor:pointer; margin-top:12px; display:none; }
+.next-q-btn.show { display:block; }
+
+/* AI Section */
+.ai-section { background:var(--card); border:1px solid rgba(124,58,237,.3); border-radius:14px; padding:16px; margin-bottom:16px; }
+.ai-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.ai-dot { width:8px; height:8px; border-radius:50%; background:var(--cyan); animation:pulse2 1.5s infinite; }
+@keyframes pulse2 { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+.ai-title { font-size:14px; font-weight:700; color:var(--cyan); }
+.ai-status { font-size:11px; color:var(--text2); }
+.ai-gen-btn { width:100%; background:linear-gradient(135deg,rgba(34,211,238,.2),rgba(124,58,237,.2)); border:1px solid var(--cyan); color:var(--cyan); border-radius:10px; padding:12px; font-size:14px; font-weight:700; cursor:pointer; transition:all .3s; }
+.ai-gen-btn:hover { background:linear-gradient(135deg,rgba(34,211,238,.3),rgba(124,58,237,.3)); }
+.ai-loading { text-align:center; padding:20px; color:var(--text2); font-size:14px; }
+.ai-spinner { display:inline-block; width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--accent2); border-radius:50%; animation:spin .8s linear infinite; margin-right:8px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ── ROADMAP ── */
+#roadmapScreen { padding:0 0 90px; }
+.rm-section { padding:16px; }
+.rm-title { font-size:20px; font-weight:900; padding:20px 16px 10px; }
+.rm-phase { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:12px; }
+.rm-phase-head { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.rm-phase-num { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:900; flex-shrink:0; }
+.rm-phase-name { font-size:15px; font-weight:700; }
+.rm-phase-time { font-size:11px; color:var(--text2); }
+.rm-items { display:flex; flex-direction:column; gap:6px; }
+.rm-item { display:flex; align-items:center; gap:10px; font-size:13px; padding:6px 0; }
+.rm-item::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+.rm-item.current { color:var(--accent2); font-weight:700; }
+.rm-item.current::before { background:var(--accent2); box-shadow:0 0 6px var(--accent2); }
+
+/* ── BADGES ── */
+#badgesScreen { padding:0 0 90px; }
+.badges-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:16px; }
+.badge-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; text-align:center; transition:all .3s; }
+.badge-card.earned { border-color:var(--gold); background:rgba(251,191,36,.05); }
+.badge-card.earned:hover { transform:scale(1.05); }
+.badge-icon { font-size:32px; margin-bottom:8px; }
+.badge-name { font-size:11px; font-weight:700; color:var(--text); }
+.badge-desc { font-size:10px; color:var(--text2); margin-top:3px; line-height:1.3; }
+.badge-locked { opacity:.35; }
+
+/* ── PROGRESS ── */
+#progressScreen { padding:0 0 90px; }
+.prog-stats { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; padding:16px; }
+.prog-stat { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; text-align:center; }
+.prog-stat-val { font-size:32px; font-weight:900; background:linear-gradient(135deg,var(--accent2),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.prog-stat-label { font-size:12px; color:var(--text2); margin-top:4px; }
+.topic-prog-list { padding:0 16px 16px; display:flex; flex-direction:column; gap:10px; }
+.tp-item { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; }
+.tp-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.tp-name { font-size:14px; font-weight:600; }
+.tp-pct { font-size:13px; color:var(--accent2); font-weight:700; }
+.tp-bar { height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+.tp-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:3px; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position:fixed; bottom:0; left:0; right:0;
+  background:var(--bg2); border-top:1px solid var(--border);
+  display:flex; padding:8px 0 env(safe-area-inset-bottom,8px);
+  z-index:200;
+}
+.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; padding:8px 4px; transition:all .2s; color:var(--text2); font-size:10px; font-weight:600; }
+.nav-item .n-icon { font-size:22px; }
+.nav-item.active { color:var(--accent2); }
+.nav-item.active .n-icon { filter:drop-shadow(0 0 6px var(--accent2)); }
+
+/* ── ONLINE BADGE ── */
+.online-badge { background:rgba(34,211,238,.15); border:1px solid var(--cyan); color:var(--cyan); border-radius:20px; padding:4px 10px; font-size:10px; font-weight:800; display:inline-block; margin-left:8px; }
+
+/* ── TOAST ── */
+.toast { position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-80px); background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:12px 20px; font-size:14px; font-weight:600; z-index:999; transition:transform .3s; white-space:nowrap; }
+.toast.show { transform:translateX(-50%) translateY(0); }
+.toast.success { border-color:var(--success); color:var(--success); }
+.toast.error { border-color:var(--red); color:var(--red); }
+.toast.info { border-color:var(--accent2); color:var(--accent2); }
+
+/* ── XP POPUP ── */
+.xp-popup { position:fixed; bottom:110px; right:20px; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; border-radius:12px; padding:10px 16px; font-size:16px; font-weight:900; z-index:500; opacity:0; transform:translateY(20px); transition:all .4s; pointer-events:none; }
+.xp-popup.show { opacity:1; transform:translateY(0); }
+
+/* ── FUTURE PLANNING ── */
+.future-hero {
+  background:linear-gradient(135deg,#0d0d2e,#1a0a3e,#0a1a2e);
+  padding:28px 16px 20px; text-align:center; border-bottom:1px solid var(--border);
+}
+.future-hero-icon { font-size:48px; margin-bottom:10px; animation:float 3s ease-in-out infinite; }
+.future-hero-title { font-size:24px; font-weight:900; background:linear-gradient(135deg,#fbbf24,#f97316); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.future-hero-sub { font-size:13px; color:var(--text2); margin-top:6px; line-height:1.5; }
+
+.path-selector { display:flex; gap:8px; padding:16px; overflow-x:auto; }
+.path-btn {
+  flex-shrink:0; background:var(--card); border:2px solid var(--border);
+  border-radius:24px; padding:10px 18px; font-size:13px; font-weight:700;
+  cursor:pointer; transition:all .3s; color:var(--text2); white-space:nowrap;
+}
+.path-btn.active { border-color:var(--accent2); color:var(--accent2); background:rgba(168,85,247,.1); }
+
+.career-intro { display:flex; align-items:center; gap:14px; padding:16px; margin:0 16px 4px; border-radius:14px; }
+.gate-intro { background:linear-gradient(135deg,rgba(34,211,238,.08),rgba(16,185,129,.08)); border:1px solid rgba(34,211,238,.2); }
+.offensive-intro { background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(168,85,247,.08)); border:1px solid rgba(239,68,68,.2); }
+.both-intro { background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(249,115,22,.08)); border:1px solid rgba(251,191,36,.2); }
+.ci-icon { font-size:36px; }
+.ci-title { font-size:17px; font-weight:800; }
+.ci-desc { font-size:12px; color:var(--text2); margin-top:3px; }
+
+.fp-section-title { font-size:12px; font-weight:800; color:var(--text2); text-transform:uppercase; letter-spacing:1px; padding:18px 16px 8px; }
+
+.fp-phase { margin:0 16px 8px; background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.beginner-phase { border-color:rgba(16,185,129,.3); }
+.intermediate-phase { border-color:rgba(251,191,36,.3); }
+.advanced-phase { border-color:rgba(239,68,68,.3); }
+
+.fp-phase-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); }
+.fp-phase-badge { font-size:11px; font-weight:800; padding:4px 12px; border-radius:20px; }
+.fp-phase-badge.beginner { background:rgba(16,185,129,.15); color:var(--success); }
+.fp-phase-badge.intermediate { background:rgba(251,191,36,.15); color:var(--gold); }
+.fp-phase-badge.advanced { background:rgba(239,68,68,.15); color:var(--red); }
+.fp-phase-time { font-size:11px; color:var(--text2); }
+
+.fp-steps { padding:12px 16px; display:flex; flex-direction:column; gap:0; }
+.fp-step { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+.fp-step:last-child { border-bottom:none; }
+.fp-step-dot { width:12px; height:12px; border-radius:50%; border:2px solid var(--border); margin-top:4px; flex-shrink:0; background:var(--bg2); }
+.current-dot { background:var(--accent2); border-color:var(--accent2); box-shadow:0 0 8px var(--accent2); }
+.fp-step.current .fp-step-title { color:var(--accent2); }
+.fp-step-title { font-size:14px; font-weight:700; margin-bottom:4px; }
+.fp-step-desc { font-size:12px; color:var(--text2); line-height:1.5; }
+.fp-step-tags { display:flex; gap:6px; margin-top:6px; flex-wrap:wrap; }
+.fst { font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; }
+.fst.gate { background:rgba(34,211,238,.1); color:var(--cyan); }
+.fst.cyber { background:rgba(239,68,68,.12); color:#f87171; }
+.fst.important { background:rgba(251,191,36,.12); color:var(--gold); }
+
+.resources-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding:0 16px 8px; }
+.resource-card { border-radius:12px; padding:14px; border:1px solid var(--border); }
+.gate-card { background:rgba(34,211,238,.05); border-color:rgba(34,211,238,.15); }
+.cyber-card { background:rgba(239,68,68,.05); border-color:rgba(239,68,68,.15); }
+.rc-icon { font-size:20px; margin-bottom:6px; }
+.rc-name { font-size:13px; font-weight:700; }
+.rc-desc { font-size:11px; color:var(--text2); margin-top:2px; }
+
+.career-outcome { margin:8px 16px 16px; border-radius:14px; padding:16px; }
+.gate-outcome { background:linear-gradient(135deg,rgba(34,211,238,.08),rgba(16,185,129,.08)); border:1px solid rgba(34,211,238,.2); }
+.cyber-outcome { background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(168,85,247,.08)); border:1px solid rgba(239,68,68,.2); }
+.co-title { font-size:15px; font-weight:800; margin-bottom:10px; }
+.co-items { display:flex; flex-direction:column; gap:8px; }
+.co-item { font-size:13px; color:var(--text2); display:flex; align-items:center; gap:8px; }
+
+/* Both Timeline */
+.both-timeline { padding:0 16px 16px; display:flex; flex-direction:column; gap:12px; }
+.bt-item { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.bt-item.final-item { border-color:var(--gold); }
+.bt-year { background:linear-gradient(135deg,var(--accent),var(--accent2)); padding:12px 16px; font-size:13px; font-weight:800; text-align:center; line-height:1.3; }
+.bt-year span { font-size:10px; font-weight:500; opacity:.8; }
+.bt-content { padding:14px 16px; display:flex; flex-direction:column; gap:8px; }
+.bt-gate, .bt-cyber { font-size:13px; line-height:1.5; }
+.bt-label { font-size:10px; font-weight:800; padding:2px 8px; border-radius:8px; margin-right:6px; }
+.gate-label { background:rgba(34,211,238,.15); color:var(--cyan); }
+.cyber-label { background:rgba(239,68,68,.15); color:#f87171; }
+.bt-note { font-size:12px; color:var(--gold); background:rgba(251,191,36,.08); border-radius:8px; padding:8px 10px; border-left:3px solid var(--gold); }
+
+/* OFFLINE MSG */
+.offline-msg { background:rgba(239,68,68,.1); border:1px solid var(--red); border-radius:10px; padding:12px 16px; margin:12px 0; color:var(--red); font-size:13px; text-align:center; }
+
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     LANG SELECT SCREEN
+════════════════════════════════════ -->
+<div id="langScreen" class="screen active">
+  <div class="lang-logo">⚡</div>
+  <div class="lang-title">HackLearn</div>
+  <div class="lang-sub">Programming Language chunno apni padhai shuru karne ke liye</div>
+  <div class="lang-grid">
+    <div class="lang-btn selected" onclick="selectLang(this,'c')" data-lang="c">
+      <div class="lb-badge">HOT</div>
+      <span class="lb-icon">🔷</span>
+      <div class="lb-name">C Language</div>
+      <div class="lb-sub">Cyber Security ka base</div>
+    </div>
+    <div class="lang-btn" onclick="selectLang(this,'cpp')" data-lang="cpp">
+      <div class="lb-badge">SOON</div>
+      <span class="lb-icon">⚙️</span>
+      <div class="lb-name">C++</div>
+      <div class="lb-sub">System programming</div>
+    </div>
+    <div class="lang-btn" onclick="selectLang(this,'python')" data-lang="python">
+      <div class="lb-badge">SOON</div>
+      <span class="lb-icon">🐍</span>
+      <div class="lb-name">Python</div>
+      <div class="lb-sub">Hacking automation</div>
+    </div>
+    <div class="lang-btn" onclick="selectLang(this,'linux')" data-lang="linux">
+      <div class="lb-badge">SOON</div>
+      <span class="lb-icon">🐧</span>
+      <div class="lb-name">Linux/Bash</div>
+      <div class="lb-sub">Pentesting foundation</div>
+    </div>
+  </div>
+  <button class="lang-start-btn" onclick="startApp()">🚀 C Language Shuru Karo</button>
+</div>
+
+<!-- ════════════════════════════════════
+     APP SCREEN
+════════════════════════════════════ -->
+<div id="appScreen" class="screen">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-logo">⚡ HackLearn</div>
+    <div class="top-stats">
+      <div class="stat-pill"><span class="si">🔥</span><span id="streakStat">1</span>d</div>
+      <div class="stat-pill"><span class="si">⚡</span><span id="xpStat">0</span></div>
+      <div class="mode-toggle" id="modeToggle" onclick="toggleMode()">OFFLINE</div>
+    </div>
+  </div>
+
+  <!-- HOME TAB -->
+  <div id="homeTab" class="tab-content">
+    <div class="home-hero">
+      <h1>Namaste, Cyber Warrior 👾</h1>
+      <p>C Programming seekho — Cybersecurity ka asli base. Ek ek topic master karo!</p>
+      <div class="progress-bar-wrap">
+        <div class="progress-label">
+          <span>Overall Progress</span>
+          <span id="overallPct">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="overallBar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">📚 C Language Topics — Beginner se Advanced</div>
+    <div class="topics-grid" id="topicsGrid"></div>
+  </div>
+
+  <!-- ROADMAP TAB -->
+  <div id="roadmapTab" class="tab-content" style="display:none">
+    <div class="rm-title">🗺️ C Programming Roadmap</div>
+    <div class="rm-section" id="roadmapContent"></div>
+  </div>
+
+  <!-- BADGES TAB -->
+  <div id="badgesTab" class="tab-content" style="display:none">
+    <div class="section-title" style="padding:20px 16px 10px">🏆 Badges</div>
+    <div class="badges-grid" id="badgesGrid"></div>
+  </div>
+
+  <!-- PROGRESS TAB -->
+  <div id="progressTab" class="tab-content" style="display:none">
+    <div class="section-title" style="padding:20px 16px 10px">📊 Tumhara Progress</div>
+    <div class="prog-stats">
+      <div class="prog-stat"><div class="prog-stat-val" id="pXP">0</div><div class="prog-stat-label">Total XP</div></div>
+      <div class="prog-stat"><div class="prog-stat-val" id="pLessons">0</div><div class="prog-stat-label">Lessons Done</div></div>
+      <div class="prog-stat"><div class="prog-stat-val" id="pStreak">1</div><div class="prog-stat-label">Day Streak 🔥</div></div>
+      <div class="prog-stat"><div class="prog-stat-val" id="pTopics">0</div><div class="prog-stat-label">Topics Complete</div></div>
+    </div>
+    <div class="section-title">Topic Progress</div>
+    <div class="topic-prog-list" id="topicProgList"></div>
+  </div>
+
+  <!-- FUTURE PLANNING TAB -->
+  <div id="futureTab" class="tab-content" style="display:none">
+    <div class="future-hero">
+      <div class="future-hero-icon">🔭</div>
+      <div class="future-hero-title">Future Planning</div>
+      <div class="future-hero-sub">Apna career path chunno — Beginner se Expert tak ka poora roadmap</div>
+    </div>
+
+    <!-- PATH SELECTOR -->
+    <div class="path-selector">
+      <div class="path-btn active" onclick="switchPath(this,'gate')" data-path="gate">🎓 GATE / MTech</div>
+      <div class="path-btn" onclick="switchPath(this,'offensive')" data-path="offensive">💀 Offensive Security</div>
+      <div class="path-btn" onclick="switchPath(this,'both')" data-path="both">⚔️ Dono Saath</div>
+    </div>
+
+    <!-- GATE PATH -->
+    <div id="gatePath" class="career-path">
+      <div class="career-intro gate-intro">
+        <div class="ci-icon">🎓</div>
+        <div class="ci-text">
+          <div class="ci-title">GATE CS/IT Path</div>
+          <div class="ci-desc">IIT/NIT MTech, PSU Jobs (DRDO, ISRO, BSNL) — ₹6-20 LPA</div>
+        </div>
+      </div>
+
+      <div class="fp-section-title">📍 ABHI KAHAN HO — Beginner</div>
+
+      <div class="fp-phase beginner-phase">
+        <div class="fp-phase-header">
+          <div class="fp-phase-badge beginner">BEGINNER</div>
+          <div class="fp-phase-time">⏱ 1st Year / Month 1-6</div>
+        </div>
+        <div class="fp-steps">
+          <div class="fp-step current">
+            <div class="fp-step-dot current-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🔷 C Programming ← Abhi Yahan Ho</div>
+              <div class="fp-step-desc">Variables, pointers, arrays, functions, memory — yeh sab GATE mein aata hai</div>
+              <div class="fp-step-tags"><span class="fst gate">GATE Topic</span><span class="fst important">Most Important</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">📐 Engineering Mathematics</div>
+              <div class="fp-step-desc">Discrete Maths, Linear Algebra, Probability, Calculus — College mein already hai</div>
+              <div class="fp-step-tags"><span class="fst gate">15% Weightage</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🔢 Data Structures</div>
+              <div class="fp-step-desc">Arrays, Linked List, Stack, Queue, Trees, Graphs — C mein implement karo</div>
+              <div class="fp-step-tags"><span class="fst gate">GATE Topic</span><span class="fst important">High Marks</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">⚡ Algorithms Basics</div>
+              <div class="fp-step-desc">Sorting, Searching, Time/Space Complexity — Big O notation samjho</div>
+              <div class="fp-step-tags"><span class="fst gate">GATE Topic</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fp-section-title">🔼 INTERMEDIATE — Year 1-2</div>
+      <div class="fp-phase intermediate-phase">
+        <div class="fp-phase-header">
+          <div class="fp-phase-badge intermediate">INTERMEDIATE</div>
+          <div class="fp-phase-time">⏱ Semester 2-4 / Month 6-18</div>
+        </div>
+        <div class="fp-steps">
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🖥️ Operating Systems</div>
+              <div class="fp-step-desc">Process, Thread, Scheduling, Deadlock, Memory Management, File Systems</div>
+              <div class="fp-step-tags"><span class="fst gate">GATE Topic</span><span class="fst important">High Marks</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🌐 Computer Networks</div>
+              <div class="fp-step-desc">OSI Model, TCP/IP, Routing, Subnetting, DNS, HTTP — poora networking</div>
+              <div class="fp-step-tags"><span class="fst gate">GATE Topic</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🗄️ DBMS</div>
+              <div class="fp-step-desc">ER Diagrams, Normalization, SQL, Transactions, ACID Properties</div>
+              <div class="fp-step-tags"><span class="fst gate">GATE Topic</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">⚙️ Computer Organization & Architecture</div>
+              <div class="fp-step-desc">CPU, Memory, Cache, Pipelining, I/O — hardware ka software connection</div>
+              <div class="fp-step-tags"><span class="fst gate">GATE Topic</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🔡 Theory of Computation</div>
+              <div class="fp-step-desc">DFA, NFA, Regular Expressions, CFG, Turing Machine — theoretical CS</div>
+              <div class="fp-step-tags"><span class="fst gate">GATE Topic</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fp-section-title">🏆 ADVANCED — Year 3-4</div>
+      <div class="fp-phase advanced-phase">
+        <div class="fp-phase-header">
+          <div class="fp-phase-badge advanced">ADVANCED</div>
+          <div class="fp-phase-time">⏱ Last 6 Months Before GATE</div>
+        </div>
+        <div class="fp-steps">
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🧩 Compiler Design</div>
+              <div class="fp-step-desc">Lexical Analysis, Parsing, Semantic Analysis, Code Generation</div>
+              <div class="fp-step-tags"><span class="fst gate">GATE Topic</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">📝 Previous Year Papers</div>
+              <div class="fp-step-desc">2015-2024 ke saare GATE CS papers solve karo — most important step!</div>
+              <div class="fp-step-tags"><span class="fst important">Must Do</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🎯 Mock Tests Daily</div>
+              <div class="fp-step-desc">MADE Easy, GO Book, GateOverflow — daily practice sets</div>
+              <div class="fp-step-tags"><span class="fst important">Last 3 Months</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fp-section-title">🎯 RESOURCES & CAREER</div>
+      <div class="resources-grid">
+        <div class="resource-card gate-card"><div class="rc-icon">📚</div><div class="rc-name">GeeksForGeeks</div><div class="rc-desc">GATE theory + practice</div></div>
+        <div class="resource-card gate-card"><div class="rc-icon">💬</div><div class="rc-name">Gate Overflow</div><div class="rc-desc">Previous year discussions</div></div>
+        <div class="resource-card gate-card"><div class="rc-icon">📖</div><div class="rc-name">MADE Easy Books</div><div class="rc-desc">Standard GATE books</div></div>
+        <div class="resource-card gate-card"><div class="rc-icon">🎥</div><div class="rc-name">Ravindrababu Ravula</div><div class="rc-desc">Best YouTube lectures</div></div>
+      </div>
+      <div class="career-outcome gate-outcome">
+        <div class="co-title">🎓 GATE ke Baad Career</div>
+        <div class="co-items">
+          <div class="co-item">🏛️ IIT/NIT MTech — Top Research</div>
+          <div class="co-item">🔬 ISRO / BARC / DRDO — Government R&D</div>
+          <div class="co-item">🏢 PSU Jobs — BSNL, ONGC, NTPC</div>
+          <div class="co-item">💰 Salary: ₹6-20 LPA PSU</div>
+          <div class="co-item">🎓 PhD Opportunities — IITs</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OFFENSIVE SECURITY PATH -->
+    <div id="offensivePath" class="career-path" style="display:none">
+      <div class="career-intro offensive-intro">
+        <div class="ci-icon">💀</div>
+        <div class="ci-text">
+          <div class="ci-title">Offensive Security Path</div>
+          <div class="ci-desc">Ethical Hacker, Pentester, Red Team — ₹8-40 LPA</div>
+        </div>
+      </div>
+
+      <div class="fp-section-title">📍 ABHI KAHAN HO — Beginner</div>
+      <div class="fp-phase beginner-phase">
+        <div class="fp-phase-header">
+          <div class="fp-phase-badge beginner">BEGINNER</div>
+          <div class="fp-phase-time">⏱ Month 1-3 — Foundation</div>
+        </div>
+        <div class="fp-steps">
+          <div class="fp-step current">
+            <div class="fp-step-dot current-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🔷 C Programming ← Abhi Yahan Ho</div>
+              <div class="fp-step-desc">Pointers, memory, buffers — exploit likhne ke liye C banana zaroori hai</div>
+              <div class="fp-step-tags"><span class="fst cyber">Exploit Base</span><span class="fst important">Most Important</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🐧 Linux Basics</div>
+              <div class="fp-step-desc">Terminal commands, file system, permissions, bash scripting — hacking sab Linux pe hota hai</div>
+              <div class="fp-step-tags"><span class="fst cyber">Must Have</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🌐 Networking Basics</div>
+              <div class="fp-step-desc">IP, TCP/IP, DNS, HTTP, Ports — kaise data travel karta hai internet pe</div>
+              <div class="fp-step-tags"><span class="fst cyber">Foundation</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🐍 Python Basics</div>
+              <div class="fp-step-desc">Scripts likhna, automation, tool banao — hacking tools Python mein bante hain</div>
+              <div class="fp-step-tags"><span class="fst cyber">Hacking Tool</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🔐 Cyber Security Basics</div>
+              <div class="fp-step-desc">CIA Triad, threats, vulnerabilities, attack types — security ka vocabulary sikho</div>
+              <div class="fp-step-tags"><span class="fst cyber">Theory</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fp-section-title">🔼 INTERMEDIATE — Month 3-9</div>
+      <div class="fp-phase intermediate-phase">
+        <div class="fp-phase-header">
+          <div class="fp-phase-badge intermediate">INTERMEDIATE</div>
+          <div class="fp-phase-time">⏱ 6 Months — Hands-on Hacking</div>
+        </div>
+        <div class="fp-steps">
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🌍 Web Hacking Basics</div>
+              <div class="fp-step-desc">SQL Injection, XSS, CSRF, IDOR — OWASP Top 10 samjho aur practice karo</div>
+              <div class="fp-step-tags"><span class="fst cyber">Bug Bounty</span><span class="fst important">High Demand</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🔍 Reconnaissance & Footprinting</div>
+              <div class="fp-step-desc">Nmap, Whois, Google Dorks, Shodan — target ke baare mein info gather karo</div>
+              <div class="fp-step-tags"><span class="fst cyber">Pentesting Step 1</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">💣 Vulnerability Analysis</div>
+              <div class="fp-step-desc">Nikto, OpenVAS, Nessus — vulnerabilities scan karna sikho</div>
+              <div class="fp-step-tags"><span class="fst cyber">Pentesting Step 2</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">⚔️ Exploitation Basics</div>
+              <div class="fp-step-desc">Metasploit, Burp Suite — real vulnerabilities exploit karna sikho (lab mein)</div>
+              <div class="fp-step-tags"><span class="fst cyber">Core Skill</span><span class="fst important">Key Tool</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🏁 CTF Challenges</div>
+              <div class="fp-step-desc">PicoCTF, TryHackMe — beginner friendly CTFs se start karo, skills prove karo</div>
+              <div class="fp-step-tags"><span class="fst cyber">Portfolio</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">📱 Android & Mobile Hacking</div>
+              <div class="fp-step-desc">APK analysis, Termux, ADB — mobile apps ka security test karna</div>
+              <div class="fp-step-tags"><span class="fst cyber">Bonus Skill</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fp-section-title">🏆 ADVANCED — Month 9-18+</div>
+      <div class="fp-phase advanced-phase">
+        <div class="fp-phase-header">
+          <div class="fp-phase-badge advanced">ADVANCED</div>
+          <div class="fp-phase-time">⏱ Pro Level — 1+ Year</div>
+        </div>
+        <div class="fp-steps">
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">💥 Binary Exploitation</div>
+              <div class="fp-step-desc">Buffer Overflow, ROP Chains, Format String — C ka seedha use! Yahi C sikha tha</div>
+              <div class="fp-step-tags"><span class="fst cyber">C Direct Use</span><span class="fst important">OSCP Needed</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🕵️ Advanced Web Attacks</div>
+              <div class="fp-step-desc">SSRF, XXE, Deserialization, Business Logic Bugs — advanced pentesting</div>
+              <div class="fp-step-tags"><span class="fst cyber">Bug Bounty ₹₹₹</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🔴 Red Team Operations</div>
+              <div class="fp-step-desc">C2 Frameworks, Cobalt Strike, custom payloads — full attack simulation</div>
+              <div class="fp-step-tags"><span class="fst cyber">Elite Level</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🦠 Malware Development</div>
+              <div class="fp-step-desc">C mein malware likhna — keyloggers, reverse shells, evasion techniques</div>
+              <div class="fp-step-tags"><span class="fst cyber">C Direct Use</span></div>
+            </div>
+          </div>
+          <div class="fp-step">
+            <div class="fp-step-dot"></div>
+            <div class="fp-step-body">
+              <div class="fp-step-title">🏆 OSCP Certification</div>
+              <div class="fp-step-desc">Offensive Security Certified Professional — industry gold standard. 24 hour exam!</div>
+              <div class="fp-step-tags"><span class="fst important">Gold Standard</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fp-section-title">🎯 PRACTICE PLATFORMS — Beginner se Start Karo</div>
+      <div class="resources-grid">
+        <div class="resource-card cyber-card"><div class="rc-icon">🟢</div><div class="rc-name">TryHackMe</div><div class="rc-desc">Beginner friendly — guided paths</div></div>
+        <div class="resource-card cyber-card"><div class="rc-icon">⬛</div><div class="rc-name">HackTheBox</div><div class="rc-desc">Intermediate — real machines</div></div>
+        <div class="resource-card cyber-card"><div class="rc-icon">🕷️</div><div class="rc-name">PortSwigger</div><div class="rc-desc">Web hacking — free labs</div></div>
+        <div class="resource-card cyber-card"><div class="rc-icon">🏁</div><div class="rc-name">PicoCTF</div><div class="rc-desc">Beginner CTF — free!</div></div>
+        <div class="resource-card cyber-card"><div class="rc-icon">💰</div><div class="rc-name">HackerOne</div><div class="rc-desc">Bug bounty — real money</div></div>
+        <div class="resource-card cyber-card"><div class="rc-icon">🐛</div><div class="rc-name">Bugcrowd</div><div class="rc-desc">Bug bounty platform</div></div>
+      </div>
+      <div class="career-outcome cyber-outcome">
+        <div class="co-title">💀 Offensive Security ke Baad Career</div>
+        <div class="co-items">
+          <div class="co-item">🔍 Penetration Tester — ₹8-25 LPA</div>
+          <div class="co-item">🐛 Bug Bounty Hunter — $1000-$50,000 per bug</div>
+          <div class="co-item">🔴 Red Team Operator — ₹15-40 LPA</div>
+          <div class="co-item">🛡️ Security Researcher — ₹12-35 LPA</div>
+          <div class="co-item">🏢 Top Companies: Zerodium, CrowdStrike, Palo Alto</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTH PATHS -->
+    <div id="bothPath" class="career-path" style="display:none">
+      <div class="career-intro both-intro">
+        <div class="ci-icon">⚔️</div>
+        <div class="ci-text">
+          <div class="ci-title">Dono Saath — Best Strategy</div>
+          <div class="ci-desc">College mein GATE + simultaneously Offensive Security — double career options</div>
+        </div>
+      </div>
+      <div class="both-timeline">
+        <div class="bt-item">
+          <div class="bt-year">Year 1<br><span>Semester 1-2</span></div>
+          <div class="bt-content">
+            <div class="bt-gate"><span class="bt-label gate-label">🎓 GATE</span> C Programming, Discrete Maths, DS Basics</div>
+            <div class="bt-cyber"><span class="bt-label cyber-label">💀 CYBER</span> C Programming, Linux Basics, Networking basics</div>
+            <div class="bt-note">💡 C Programming dono mein common hai — ek kaam, double faayda!</div>
+          </div>
+        </div>
+        <div class="bt-item">
+          <div class="bt-year">Year 1-2<br><span>Semester 2-4</span></div>
+          <div class="bt-content">
+            <div class="bt-gate"><span class="bt-label gate-label">🎓 GATE</span> Algorithms, OS, Computer Networks, COA</div>
+            <div class="bt-cyber"><span class="bt-label cyber-label">💀 CYBER</span> TryHackMe rooms, Web Hacking OWASP, Python scripts</div>
+            <div class="bt-note">💡 OS aur Networking dono paths mein kaam aata hai!</div>
+          </div>
+        </div>
+        <div class="bt-item">
+          <div class="bt-year">Year 2-3<br><span>Semester 4-6</span></div>
+          <div class="bt-content">
+            <div class="bt-gate"><span class="bt-label gate-label">🎓 GATE</span> DBMS, Compiler Design, TOC, Mock Tests start</div>
+            <div class="bt-cyber"><span class="bt-label cyber-label">💀 CYBER</span> HackTheBox, eJPT certification, CTF competitions</div>
+            <div class="bt-note">💡 eJPT certificate resume mein daalo — placement mein help karega!</div>
+          </div>
+        </div>
+        <div class="bt-item">
+          <div class="bt-year">Year 3-4<br><span>Final Push</span></div>
+          <div class="bt-content">
+            <div class="bt-gate"><span class="bt-label gate-label">🎓 GATE</span> Full revision, Previous Papers, Mock Tests daily</div>
+            <div class="bt-cyber"><span class="bt-label cyber-label">💀 CYBER</span> OSCP prep, Bug Bounty start, Binary Exploitation</div>
+            <div class="bt-note">💡 GATE dedo — IIT MTech bhi option rahe. Saath mein hacking bhi seekhte raho!</div>
+          </div>
+        </div>
+        <div class="bt-item final-item">
+          <div class="bt-year">After<br><span>Graduation</span></div>
+          <div class="bt-content">
+            <div class="bt-gate"><span class="bt-label gate-label">🎓 GATE</span> IIT/NIT MTech, PSU Job, Research</div>
+            <div class="bt-cyber"><span class="bt-label cyber-label">💀 CYBER</span> Pentester Job, OSCP, Bug Bounty full time</div>
+            <div class="bt-note">🎯 Dono options open rahenge — choose karo jo best opportunity mile!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="showTab('home',this)"><div class="n-icon">🏠</div>Home</div>
+    <div class="nav-item" onclick="showTab('roadmap',this)"><div class="n-icon">🗺️</div>Roadmap</div>
+    <div class="nav-item" onclick="showTab('future',this)"><div class="n-icon">🔭</div>Future</div>
+    <div class="nav-item" onclick="showTab('badges',this)"><div class="n-icon">🏆</div>Badges</div>
+    <div class="nav-item" onclick="showTab('progress',this)"><div class="n-icon">📊</div>Progress</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     LEVEL SCREEN
+════════════════════════════════════ -->
+<div id="levelScreen" class="screen">
+  <div class="level-header">
+    <div class="back-btn" onclick="goBack('appScreen')">← Wapas</div>
+    <div class="level-topic-name" id="levelTopicName"></div>
+    <div class="level-topic-sub" id="levelTopicSub"></div>
+  </div>
+  <div class="levels-list" id="levelsList"></div>
+</div>
+
+<!-- ════════════════════════════════════
+     LESSON SCREEN
+════════════════════════════════════ -->
+<div id="lessonScreen" class="screen">
+  <div class="lesson-header">
+    <div class="back-btn" onclick="goBack('levelScreen')">← Wapas</div>
+    <div style="font-size:17px;font-weight:800" id="lessonTitle"></div>
+    <div class="lesson-tabs">
+      <div class="l-tab active" onclick="switchTab(this,'theory')">📖 Theory</div>
+      <div class="l-tab" onclick="switchTab(this,'practice')">💻 Practice</div>
+      <div class="l-tab" onclick="switchTab(this,'quiz')">🎯 Quiz</div>
+    </div>
+  </div>
+  <div class="lesson-body">
+    <div id="theoryContent"></div>
+    <div id="practiceContent" style="display:none"></div>
+    <div id="quizContent" style="display:none"></div>
+  </div>
+</div>
+
+<!-- TOAST & XP POPUP -->
+<div class="toast" id="toast"></div>
+<div class="xp-popup" id="xpPopup"></div>
+
+<script>
+// ══════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════
+let state = {
+  xp: 0, streak: 1, lessonsComplete: 0, topicsComplete: 0,
+  online: false, currentTopic: null, currentLevel: null,
+  topicProgress: {}, badges: {},
+  currentQuiz: null, quizAnswered: false, aiQuizData: null
+};
+
+const TOPICS = [
+  {
+    id:'basics', icon:'🌱', color:'#10b981', name:'C Language Basics',
+    sub:'Variables, Data Types, I/O — Foundation of Everything',
+    diff:'easy', cyber:'Memory Basics', xpReward:100,
+    levels:[
+      {name:'C Kya Hai?', desc:'History, uses, compiler, first program', xp:20},
+      {name:'Variables & Data Types', desc:'int, float, char, double — sab kuch', xp:25},
+      {name:'Input/Output', desc:'printf, scanf — screen pe likhna padhna', xp:25},
+      {name:'Operators', desc:'Arithmetic, relational, logical operators', xp:30},
+    ]
+  },
+  {
+    id:'control', icon:'🔀', color:'#7c3aed', name:'Control Flow',
+    sub:'if-else, loops, switch — Program ka direction',
+    diff:'easy', cyber:'Conditional Logic in Exploits', xpReward:150,
+    levels:[
+      {name:'if-else Statements', desc:'Conditions aur decisions', xp:25},
+      {name:'Loops — for & while', desc:'Kaam repeat karna', xp:30},
+      {name:'do-while & nested loops', desc:'Advanced looping', xp:30},
+      {name:'switch-case & break', desc:'Multiple conditions handle karna', xp:35},
+      {name:'goto & Labels', desc:'Low-level control flow', xp:30},
+    ]
+  },
+  {
+    id:'functions', icon:'⚡', color:'#f97316', name:'Functions',
+    sub:'Code reuse, modularity — Professional C ka base',
+    diff:'easy', cyber:'Shellcode Functions', xpReward:200,
+    levels:[
+      {name:'Function Basics', desc:'Declare, define, call', xp:30},
+      {name:'Parameters & Return', desc:'Data pass karna functions mein', xp:30},
+      {name:'Recursion', desc:'Function apne aap ko call karta hai', xp:40},
+      {name:'Scope & Storage Class', desc:'local, global, static, extern', xp:35},
+      {name:'Function Pointers', desc:'Advanced — functions as variables', xp:45},
+    ]
+  },
+  {
+    id:'arrays', icon:'📦', color:'#22d3ee', name:'Arrays & Strings',
+    sub:'Data collections — Buffer overflows samajhne ka rasta',
+    diff:'medium', cyber:'Buffer Overflow Foundation', xpReward:250,
+    levels:[
+      {name:'1D Arrays', desc:'Array declare, initialize, access', xp:30},
+      {name:'2D Arrays & Matrix', desc:'Rows aur columns', xp:35},
+      {name:'String Basics', desc:'char arrays aur string literals', xp:35},
+      {name:'String Functions', desc:'strlen, strcpy, strcat, strcmp', xp:40},
+      {name:'Array of Strings', desc:'Multiple strings handle karna', xp:35},
+      {name:'Buffer Overflow Demo', desc:'Unsafe strings — hacking connection', xp:55},
+    ]
+  },
+  {
+    id:'pointers', icon:'🎯', color:'#ef4444', name:'Pointers',
+    sub:'C ka superpower — Memory directly control karo',
+    diff:'medium', cyber:'Memory Exploitation', xpReward:300,
+    levels:[
+      {name:'Pointer Basics', desc:'Address kya hai, & aur * operators', xp:40},
+      {name:'Pointer Arithmetic', desc:'Pointer ko increment/decrement karna', xp:40},
+      {name:'Pointers & Arrays', desc:'Array name ek pointer hai', xp:45},
+      {name:'Pointers & Functions', desc:'Call by reference — actual values change karo', xp:45},
+      {name:'Double Pointers', desc:'Pointer to pointer — advanced concept', xp:50},
+      {name:'NULL & Void Pointers', desc:'Special pointer types', xp:40},
+      {name:'Pointer ke Dangers', desc:'Segfault, dangling pointer, memory leak', xp:40},
+    ]
+  },
+  {
+    id:'memory', icon:'🧠', color:'#a855f7', name:'Memory Management',
+    sub:'malloc, free, heap — Manual memory ka full control',
+    diff:'hard', cyber:'Heap Exploitation', xpReward:350,
+    levels:[
+      {name:'Stack vs Heap', desc:'Memory layout samajhna', xp:45},
+      {name:'malloc & calloc', desc:'Dynamic memory allocate karna', xp:45},
+      {name:'realloc & free', desc:'Memory resize aur free karna', xp:45},
+      {name:'Memory Leaks', desc:'Kya hota hai jab free nahi karte', xp:50},
+      {name:'Use-After-Free', desc:'Hacking concept — freed memory access', xp:65},
+    ]
+  },
+  {
+    id:'structures', icon:'🏗️', color:'#fbbf24', name:'Structures & Unions',
+    sub:'Custom data types — Real-world data model karo',
+    diff:'medium', cyber:'Binary Protocol Analysis', xpReward:250,
+    levels:[
+      {name:'struct Basics', desc:'Custom data type banao', xp:35},
+      {name:'Nested Structures', desc:'struct andar struct', xp:40},
+      {name:'Pointers to Struct', desc:'Arrow operator ->', xp:45},
+      {name:'union', desc:'Same memory, alag types', xp:40},
+      {name:'typedef', desc:'Type ko rename karna', xp:35},
+      {name:'Bit Fields', desc:'Memory-efficient structs', xp:45},
+    ]
+  },
+  {
+    id:'files', icon:'📁', color:'#64748b', name:'File Handling',
+    sub:'Files read/write — Data persist karna seekho',
+    diff:'medium', cyber:'Log File Analysis', xpReward:200,
+    levels:[
+      {name:'File Open/Close', desc:'fopen, fclose — basics', xp:30},
+      {name:'Read & Write Text', desc:'fprintf, fscanf, fgets, fputs', xp:35},
+      {name:'Binary Files', desc:'fread, fwrite — binary data', xp:40},
+      {name:'File Pointer & Seek', desc:'fseek, ftell, rewind', xp:40},
+      {name:'Error Handling in Files', desc:'ferror, feof, perror', xp:35},
+    ]
+  },
+  {
+    id:'preprocessor', icon:'⚙️', color:'#ec4899', name:'Preprocessor & Macros',
+    sub:'#define, #include, #ifdef — Compilation se pehle',
+    diff:'medium', cyber:'Malware Obfuscation Tricks', xpReward:200,
+    levels:[
+      {name:'#define & Constants', desc:'Macros aur symbolic constants', xp:30},
+      {name:'#include & Header Files', desc:'Code modular banao', xp:30},
+      {name:'Conditional Compilation', desc:'#ifdef, #ifndef, #endif', xp:35},
+      {name:'Macro Functions', desc:'Function-like macros', xp:40},
+    ]
+  },
+  {
+    id:'bitops', icon:'⚔️', color:'#06b6d4', name:'Bit Manipulation',
+    sub:'AND, OR, XOR, shifts — Hacking mein bahut kaam aata hai',
+    diff:'hard', cyber:'XOR Encryption, Flags', xpReward:300,
+    levels:[
+      {name:'Binary Number System', desc:'Binary, hex, octal — conversion', xp:35},
+      {name:'Bitwise Operators', desc:'&, |, ^, ~, <<, >>', xp:40},
+      {name:'Bit Masking', desc:'Specific bits set/clear/toggle karna', xp:45},
+      {name:'XOR Tricks', desc:'Swap without temp, encryption basics', xp:50},
+      {name:'Practical: Simple Cipher', desc:'XOR se basic encryption likhna', xp:55},
+    ]
+  },
+  {
+    id:'algorithms', icon:'🔢', color:'#8b5cf6', name:'Data Structures & Algorithms',
+    sub:'Sort, search, linked list — GATE aur interviews ke liye',
+    diff:'hard', cyber:'Algorithm Complexity in Attacks', xpReward:400,
+    levels:[
+      {name:'Sorting Algorithms', desc:'Bubble, Selection, Insertion sort', xp:45},
+      {name:'Searching', desc:'Linear aur Binary search', xp:40},
+      {name:'Linked List', desc:'Dynamic data structure — pointers se', xp:60},
+      {name:'Stack with Arrays', desc:'LIFO structure implement karo', xp:50},
+      {name:'Queue with Arrays', desc:'FIFO structure implement karo', xp:50},
+      {name:'Recursion Problems', desc:'Fibonacci, factorial, Tower of Hanoi', xp:55},
+    ]
+  },
+  {
+    id:'advanced', icon:'🔴', color:'#dc2626', name:'Advanced C & System',
+    sub:'Command line args, signal handling, system calls',
+    diff:'hard', cyber:'Exploit Development', xpReward:500,
+    levels:[
+      {name:'Command Line Arguments', desc:'argc, argv — terminal se input', xp:45},
+      {name:'Environment Variables', desc:'getenv, putenv — system variables', xp:45},
+      {name:'Signal Handling', desc:'SIGSEGV, SIGTERM — signals handle karna', xp:55},
+      {name:'Process & fork()', desc:'New process banao — Unix system call', xp:65},
+      {name:'Inter-Process Communication', desc:'Pipes, shared memory basics', xp:70},
+      {name:'GDB Debugging', desc:'Code debug karna — hacker skill', xp:60},
+    ]
+  },
+];
+
+const BADGES = [
+  {id:'first',icon:'🌱',name:'First Step',desc:'App open kiya!',earned:true},
+  {id:'curious',icon:'💡',name:'Curious Mind',desc:'Pehla lesson complete karo'},
+  {id:'fire',icon:'🔥',name:'On Fire',desc:'3 din streak banao'},
+  {id:'coder',icon:'⚡',name:'Code Runner',desc:'Pehla code run karo'},
+  {id:'quizmaster',icon:'🧠',name:'Quiz Master',desc:'10 quiz questions pass karo'},
+  {id:'pointer',icon:'🎯',name:'Pointer Pro',desc:'Pointers topic complete karo'},
+  {id:'memory',icon:'🧠',name:'Memory Hacker',desc:'Memory Management complete karo'},
+  {id:'bits',icon:'⚔️',name:'Bit Warrior',desc:'Bit Manipulation complete karo'},
+  {id:'cyber',icon:'💀',name:'Cyber Warrior',desc:'Sabhi C topics complete karo'},
+  {id:'xp500',icon:'🏅',name:'XP Hunter',desc:'500 XP earn karo'},
+  {id:'xp1000',icon:'🥇',name:'XP Legend',desc:'1000 XP earn karo'},
+  {id:'algo',icon:'🔢',name:'Algorithm God',desc:'DSA topic complete karo'},
+];
+
+const ROADMAP = [
+  {phase:1, name:'C Foundations', time:'Weeks 1-2', items:['C Language Basics ← Yahan shuru karo','Control Flow','Functions','Arrays & Strings'], current:0},
+  {phase:2, name:'C Power Features', time:'Weeks 3-4', items:['Pointers','Memory Management','Structures & Unions','File Handling'], current:-1},
+  {phase:3, name:'Advanced C', time:'Weeks 5-6', items:['Preprocessor & Macros','Bit Manipulation','Data Structures & Algorithms'], current:-1},
+  {phase:4, name:'System Level C', time:'Weeks 7-8', items:['Advanced C & System Calls','GDB Debugging','Buffer Overflow Lab','Basic Exploit Writing'], current:-1},
+  {phase:5, name:'Cyber Connection', time:'Month 3+', items:['C se Shellcode likhna','Format String Vulnerabilities','Heap Exploitation basics','CTF C challenges'], current:-1},
+];
+
+// ══════════════════════════════════════
+//  OFFLINE CONTENT
+// ══════════════════════════════════════
+function getOfflineTheory(topicId, levelIdx) {
+  const theories = {
+    basics_0: `<div class="theory-block"><h2>🔷 C Language — Kya Hai aur Kyun Seekhna Chahiye?</h2>
+<p>C ek <strong>general-purpose programming language</strong> hai jo Dennis Ritchie ne 1972 mein Bell Labs mein banaya. Yeh duniya ki sabse important language hai kyunki:</p>
+<div class="cyber-box"><div class="cb-label">🔐 CYBER CONNECTION</div>Buffer overflows, shellcode, exploit writing — sab kuch C mein hota hai. Agar C nahi aata, hacking properly nahi samjhoge.</div>
+<h3>C kahan use hota hai?</h3>
+<p>Operating systems (Linux, Windows ka kernel), embedded systems, game engines, compilers, aur bahut saare security tools C mein likhe hain.</p>
+<h3>Pehla C Program — Hello World</h3>
+<div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><span class="code-kw">#include</span> <span class="code-str">&lt;stdio.h&gt;</span>   <span class="code-cm">// Standard I/O library</span>
+
+<span class="code-kw">int</span> <span class="code-fn">main</span>() {
+    <span class="code-fn">printf</span>(<span class="code-str">"Hello, Cyber World!\\n"</span>);
+    <span class="code-kw">return</span> <span class="code-num">0</span>;
+}</pre></div>
+<h3>Compile aur Run Kaise Karte Hain?</h3>
+<div class="code-block"><pre><span class="code-cm"># Linux/Mac terminal mein:</span>
+gcc hello.c -o hello
+./hello</pre></div>
+<div class="tip-box"><div class="tip-label">💡 TIP</div>gcc = GNU C Compiler. Yeh free hai aur Linux pe default hota hai. Windows pe MinGW use karo.</div>
+</div>`,
+    basics_1: `<div class="theory-block"><h2>📦 Variables aur Data Types</h2>
+<p>Variable ek <strong>naam diya hua memory location</strong> hai jahan data store hota hai.</p>
+<div class="code-block"><pre><span class="code-kw">int</span> age = <span class="code-num">20</span>;           <span class="code-cm">// 4 bytes — integers</span>
+<span class="code-kw">float</span> price = <span class="code-num">99.99</span>;   <span class="code-cm">// 4 bytes — decimal</span>
+<span class="code-kw">double</span> pi = <span class="code-num">3.14159</span>;  <span class="code-cm">// 8 bytes — precise decimal</span>
+<span class="code-kw">char</span> grade = <span class="code-str">'A'</span>;      <span class="code-cm">// 1 byte — single character</span></pre></div>
+<div class="cyber-box"><div class="cb-label">🔐 CYBER CONNECTION</div>Memory size jaanna zaroori hai! Buffer overflow attacks mein hum intentionally zyada data fill karte hain ek fixed-size variable mein.</div>
+<h3>sizeof() Operator</h3>
+<div class="code-block"><pre><span class="code-fn">printf</span>(<span class="code-str">"%lu\\n"</span>, <span class="code-kw">sizeof</span>(<span class="code-kw">int</span>));    <span class="code-cm">// 4</span>
+<span class="code-fn">printf</span>(<span class="code-str">"%lu\\n"</span>, <span class="code-kw">sizeof</span>(<span class="code-kw">char</span>));   <span class="code-cm">// 1</span>
+<span class="code-fn">printf</span>(<span class="code-str">"%lu\\n"</span>, <span class="code-kw">sizeof</span>(<span class="code-kw">double</span>)); <span class="code-cm">// 8</span></pre></div>
+<div class="tip-box"><div class="tip-label">💡 YAAD RAKHO</div>int = 4 bytes = 32 bits. Maximum value: 2,147,483,647</div>
+</div>`,
+    pointers_0: `<div class="theory-block"><h2>🎯 Pointers — C ka Superpower</h2>
+<p>Pointer ek variable hai jo <strong>dusre variable ka memory address store karta hai</strong>. Yeh C ka sabse powerful aur dangerous feature hai.</p>
+<div class="code-block"><pre><span class="code-kw">int</span> x = <span class="code-num">10</span>;        <span class="code-cm">// normal variable</span>
+<span class="code-kw">int</span> *ptr = &x;    <span class="code-cm">// pointer — x ka address store karta hai</span>
+
+<span class="code-fn">printf</span>(<span class="code-str">"%d\\n"</span>, x);     <span class="code-cm">// 10 — value</span>
+<span class="code-fn">printf</span>(<span class="code-str">"%p\\n"</span>, ptr);   <span class="code-cm">// 0x... — address</span>
+<span class="code-fn">printf</span>(<span class="code-str">"%d\\n"</span>, *ptr);  <span class="code-cm">// 10 — dereferencing</span></pre></div>
+<div class="cyber-box"><div class="cb-label">🔐 CYBER CONNECTION</div>Hackers memory addresses manipulate karte hain. ROP (Return Oriented Programming), buffer overflow mein return address overwrite — sab pointer manipulation hai.</div>
+<h3>& aur * Operators</h3>
+<p><strong>&</strong> = Address-of operator (variable ka address do)<br><strong>*</strong> = Dereference operator (address pe jo hai wo do)</p>
+<div class="tip-box"><div class="tip-label">💡 TRICK</div>"*ptr = pointer declare karna" aur "*ptr = dereference karna" — same symbol, alag context!</div>
+</div>`,
+  };
+  const key = `${topicId}_${levelIdx}`;
+  return theories[key] || getDefaultTheory(topicId, levelIdx);
+}
+
+function getDefaultTheory(topicId, levelIdx) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  const level = topic?.levels[levelIdx];
+  return `<div class="theory-block">
+<h2>${level?.name || 'Theory'}</h2>
+<p>Yeh topic <strong>${level?.desc || ''}</strong> ke baare mein hai.</p>
+<div class="cyber-box"><div class="cb-label">🔐 CYBER CONNECTION</div>${topic?.cyber || 'Cybersecurity mein yeh concept bahut kaam aata hai.'}</div>
+<p>Online mode enable karo AI se detailed explanation pao! 🤖</p>
+<div class="tip-box"><div class="tip-label">💡 TIP</div>Upar "OFFLINE" button dabao aur apni API key dalo unlimited AI content ke liye.</div>
+</div>`;
+}
+
+function getOfflinePractice(topicId, levelIdx) {
+  const practices = {
+    basics_0:`// Hello World program likho
+#include <stdio.h>
+
+int main() {
+    // Yahan apna naam print karo
+    printf("Mera naam: ???\\n");
+    printf("Main C programmer ban raha hoon!\\n");
+    return 0;
+}`,
+    basics_1:`// Variables explore karo
+#include <stdio.h>
+
+int main() {
+    int age = 18;
+    float marks = 95.5;
+    char grade = 'A';
+    
+    // Inhe print karo:
+    printf("Age: %d\\n", age);
+    printf("Marks: %.1f\\n", marks);
+    printf("Grade: %c\\n", grade);
+    
+    // sizeof check karo:
+    printf("int size: %lu bytes\\n", sizeof(int));
+    return 0;
+}`,
+    pointers_0:`// Pointer basics
+#include <stdio.h>
+
+int main() {
+    int num = 42;
+    int *ptr = &num;  // ptr stores address of num
+    
+    printf("num ki value: %d\\n", num);
+    printf("num ka address: %p\\n", &num);
+    printf("ptr mein kya hai: %p\\n", ptr);
+    printf("ptr se value: %d\\n", *ptr);  // dereference
+    
+    // Pointer se value change karo:
+    *ptr = 100;
+    printf("Baad mein num: %d\\n", num);  // 100!
+    return 0;
+}`,
+  };
+  const key = `${topicId}_${levelIdx}`;
+  return practices[key] || `// ${TOPICS.find(t=>t.id===topicId)?.levels[levelIdx]?.name || 'Practice'}\n#include <stdio.h>\n\nint main() {\n    // Apna code yahan likho\n    \n    return 0;\n}`;
+}
+
+const OFFLINE_QUIZ = [
+  {q:'C language kab banaya gaya?', opts:['1960','1972','1985','1991'], ans:1, exp:'Dennis Ritchie ne 1972 mein Bell Labs mein C banaya.'},
+  {q:'C mein integer variable declare karne ka sahi tarika kya hai?', opts:['integer x;','int x;','Int x;','number x;'], ans:1, exp:'C mein int keyword use hota hai integer ke liye.'},
+  {q:'printf() function kahan se aata hai?', opts:['stdlib.h','math.h','stdio.h','string.h'], ans:2, exp:'printf() standard I/O library se aata hai — #include <stdio.h>'},
+  {q:'int data type kitne bytes ka hota hai (32-bit system)?', opts:['1','2','4','8'], ans:2, exp:'int = 4 bytes = 32 bits. -2B se +2B range.'},
+  {q:'Pointer declare karne ka sahi syntax kya hai?', opts:['pointer int p;','int &p;','int *p;','int p*;'], ans:2, exp:'int *p; — asterisk (*) batata hai ki p pointer hai.'},
+  {q:'& operator kya karta hai?', opts:['Multiplication','Variable ka address deta hai','Dereference karta hai','AND bitwise'], ans:1, exp:'& address-of operator hai — variable ki memory location deta hai.'},
+  {q:'for loop ka sahi syntax kya hai?', opts:['for(i=0; i<10; i++)','for i=0 to 10','for(int i : 10)','loop i 0 10'], ans:0, exp:'for(init; condition; increment) — yeh standard C syntax hai.'},
+  {q:'String C mein kya hoti hai?', opts:['int array','float variable','char array','string type'], ans:2, exp:'C mein string actually character array hoti hai jo \\0 (null) se khatam hoti hai.'},
+  {q:'malloc() function kya karta hai?', opts:['Memory free karta hai','Dynamic memory allocate karta hai','Array sort karta hai','String copy karta hai'], ans:1, exp:'malloc() heap pe runtime pe memory allocate karta hai.'},
+  {q:'Recursion kya hai?', opts:['Loop ka ek type','Function jo khud ko call kare','Array traversal','Pointer arithmetic'], ans:1, exp:'Recursion = function apne aap ko call karta hai, base case tak.'},
+];
+
+// ══════════════════════════════════════
+//  LANG SELECT
+// ══════════════════════════════════════
+function selectLang(el, lang) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  const btn = document.querySelector('.lang-start-btn');
+  const names = {c:'C Language',cpp:'C++',python:'Python',linux:'Linux/Bash'};
+  btn.textContent = `🚀 ${names[lang]} Shuru Karo`;
+  btn.dataset.lang = lang;
+}
+function startApp() {
+  const lang = document.querySelector('.lang-btn.selected')?.dataset.lang || 'c';
+  if(lang !== 'c') { showToast('Coming Soon! Abhi sirf C available hai 😊','info'); return; }
+  showScreen('appScreen');
+  initApp();
+}
+
+// ══════════════════════════════════════
+//  SCREEN MANAGEMENT
+// ══════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => { s.style.display='none'; s.classList.remove('active'); });
+  const s = document.getElementById(id);
+  s.style.display='block'; s.classList.add('active');
+}
+function goBack(to) { showScreen(to); }
+
+// ══════════════════════════════════════
+//  MODE TOGGLE
+// ══════════════════════════════════════
+function toggleMode() {
+  if(!state.online) {
+    const key = prompt('Anthropic API Key dalo (sk-ant-...):\n\nFree mein pao: console.anthropic.com');
+    if(key && key.startsWith('sk-')) {
+      state.apiKey = key; state.online = true;
+      document.getElementById('modeToggle').textContent = '🟢 ONLINE';
+      document.getElementById('modeToggle').classList.add('online');
+      showToast('✅ Online mode active! Unlimited AI content ready!','success');
+    } else if(key) { showToast('Invalid API key. sk-ant- se shuru honi chahiye.','error'); }
+  } else {
+    state.online = false; state.apiKey = null;
+    document.getElementById('modeToggle').textContent = 'OFFLINE';
+    document.getElementById('modeToggle').classList.remove('online');
+    showToast('Offline mode mein wapas aa gaye','info');
+  }
+}
+
+// ══════════════════════════════════════
+//  INIT APP
+// ══════════════════════════════════════
+function initApp() {
+  renderTopics(); renderRoadmap(); renderBadges(); renderProgress();
+  loadProgress();
+}
+
+// ══════════════════════════════════════
+//  RENDER TOPICS
+// ══════════════════════════════════════
+function renderTopics() {
+  const grid = document.getElementById('topicsGrid');
+  grid.innerHTML = TOPICS.map((t,i) => {
+    const prog = state.topicProgress[t.id] || 0;
+    const pct = Math.round((prog / t.levels.length)*100);
+    const locked = i > 0 && (state.topicProgress[TOPICS[i-1].id]||0) < 1;
+    return `<div class="topic-card${locked?' locked':pct===100?' completed':''}" onclick="${locked?'showToast(\"Pehle previous topic complete karo!\",\"info\")':('openTopic(\"'+t.id+'\")')}">
+      <div class="tc-header">
+        <div class="tc-icon" style="background:${t.color}22;border:2px solid ${t.color}44">${t.icon}</div>
+        <div class="tc-info">
+          <div class="tc-title">${t.name}</div>
+          <div class="tc-sub">${t.sub}</div>
+          <div class="tc-meta">
+            <span class="tc-tag tag-${t.diff}">${t.diff.toUpperCase()}</span>
+            <span class="tc-tag tag-cyber">🔐 ${t.cyber}</span>
+            <span class="tc-tag" style="background:rgba(251,191,36,.1);color:#fbbf24">+${t.xpReward}XP</span>
+          </div>
+        </div>
+        <div class="tc-arrow">${locked?'🔒':pct===100?'✅':'›'}</div>
+      </div>
+      <div class="tc-progress"><div class="tc-progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════
+//  OPEN TOPIC → LEVEL SCREEN
+// ══════════════════════════════════════
+function openTopic(topicId) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  state.currentTopic = topic;
+  document.getElementById('levelTopicName').textContent = `${topic.icon} ${topic.name}`;
+  document.getElementById('levelTopicSub').textContent = topic.sub;
+  const prog = state.topicProgress[topic.id] || 0;
+  const list = document.getElementById('levelsList');
+  list.innerHTML = topic.levels.map((lv, i) => {
+    const done = i < prog;
+    const unlocked = i <= prog;
+    return `<div class="level-item ${done?'completed':unlocked?'unlocked':'locked'}" onclick="${unlocked?`openLevel(${i})`:`showToast('Pehle level ${i} complete karo!','info')`}">
+      <div class="level-num">${done?'✓':i+1}</div>
+      <div class="level-info">
+        <div class="level-name">Level ${i+1}: ${lv.name}</div>
+        <div class="level-desc">${lv.desc}</div>
+      </div>
+      <div class="level-xp">+${lv.xp}XP</div>
+    </div>`;
+  }).join('');
+  showScreen('levelScreen');
+}
+
+// ══════════════════════════════════════
+//  OPEN LEVEL → LESSON SCREEN
+// ══════════════════════════════════════
+function openLevel(levelIdx) {
+  state.currentLevel = levelIdx;
+  const topic = state.currentTopic;
+  const lv = topic.levels[levelIdx];
+  document.getElementById('lessonTitle').textContent = `Level ${levelIdx+1}: ${lv.name}`;
+  // Reset tabs
+  document.querySelectorAll('.l-tab').forEach((t,i)=>{ t.classList.toggle('active',i===0); });
+  document.getElementById('theoryContent').style.display='block';
+  document.getElementById('practiceContent').style.display='none';
+  document.getElementById('quizContent').style.display='none';
+  // Load theory
+  loadTheory(topic.id, levelIdx);
+  showScreen('lessonScreen');
+}
+
+// ══════════════════════════════════════
+//  TAB SWITCH
+// ══════════════════════════════════════
+function switchTab(el, tab) {
+  document.querySelectorAll('.l-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['theory','practice','quiz'].forEach(t => {
+    document.getElementById(t+'Content').style.display = t===tab?'block':'none';
+  });
+  if(tab==='practice') loadPractice(state.currentTopic.id, state.currentLevel);
+  if(tab==='quiz') loadQuiz(state.currentTopic.id, state.currentLevel);
+}
+
+// ══════════════════════════════════════
+//  THEORY
+// ══════════════════════════════════════
+function loadTheory(topicId, levelIdx) {
+  const box = document.getElementById('theoryContent');
+  if(state.online) {
+    box.innerHTML = `<div class="ai-section">
+      <div class="ai-header"><div class="ai-dot"></div><div class="ai-title">AI Theory Generator</div><span class="online-badge">ONLINE</span></div>
+      <button class="ai-gen-btn" onclick="genAITheory('${topicId}',${levelIdx})">🤖 AI se Theory Generate Karo</button>
+    </div>` + getOfflineTheory(topicId, levelIdx);
+  } else {
+    box.innerHTML = getOfflineTheory(topicId, levelIdx);
+  }
+}
+
+async function genAITheory(topicId, levelIdx) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  const lv = topic.levels[levelIdx];
+  const btn = document.querySelector('.ai-gen-btn');
+  btn.innerHTML = '<span class="ai-spinner"></span> AI soch rahi hai...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':state.apiKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:1000,
+        system:'Tu ek C programming teacher hai jo Hindi-English mix (Hinglish) mein padhata hai. Cybersecurity students ke liye explain karo. HTML format mein do with <h2>, <h3>, <p>, <code> tags. Code blocks mein actual C code do.',
+        messages:[{role:'user', content:`Topic: ${topic.name}\nLevel: ${lv.name}\nDesc: ${lv.desc}\n\nEk detailed lesson do jo beginner samajh sake. Real code examples do. Cybersecurity connection bhi batao. 400-500 words.`}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+    document.querySelector('.ai-section').innerHTML += `<div class="theory-block ai-generated"><div class="ai-header"><div class="ai-dot"></div><div class="ai-title">🤖 AI Generated Theory</div></div>${text}</div>`;
+    btn.innerHTML = '✅ AI Theory Load Ho Gayi!'; btn.disabled = false;
+    addXP(10); showToast('+10 XP — AI theory padhi!','success');
+  } catch(e) {
+    btn.innerHTML = '❌ Error — Dobara Try Karo'; btn.disabled = false;
+    showToast('API error. Key check karo.','error');
+  }
+}
+
+// ══════════════════════════════════════
+//  PRACTICE
+// ══════════════════════════════════════
+function loadPractice(topicId, levelIdx) {
+  const box = document.getElementById('practiceContent');
+  const code = getOfflinePractice(topicId, levelIdx);
+  const lv = state.currentTopic.levels[levelIdx];
+  let aiSection = '';
+  if(state.online) {
+    aiSection = `<div class="ai-section">
+      <div class="ai-header"><div class="ai-dot"></div><div class="ai-title">AI Practice Generator</div><span class="online-badge">ONLINE</span></div>
+      <button class="ai-gen-btn" onclick="genAIPractice('${topicId}',${levelIdx})">🤖 Naya Practice Problem Generate Karo</button>
+      <div id="aiPracticeResult"></div>
+    </div>`;
+  }
+  box.innerHTML = `${aiSection}<div class="practice-area">
+    <div class="pa-header"><span class="pa-title">💻 ${lv.name} — Practice</span><span style="font-size:12px;color:var(--text2)">Code likhke result dekho</span></div>
+    <textarea class="pa-code" id="codeEditor">${code}</textarea>
+    <div class="pa-footer">
+      <button class="run-btn" onclick="runCode()">▶ Run Code</button>
+      <button class="hint-btn" onclick="getHint('${topicId}',${levelIdx})">💡 Hint</button>
+    </div>
+    <div class="output-box" id="outputBox">// Output yahan aayega...</div>
+  </div>
+  <button style="width:100%;background:linear-gradient(135deg,var(--success),#059669);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px" onclick="completeLevel()">✅ Level Complete Karo (+${lv.xp} XP)</button>`;
+}
+
+function runCode() {
+  const code = document.getElementById('codeEditor').value;
+  const out = document.getElementById('outputBox');
+  // Simulate C output extraction
+  const printfs = [...code.matchAll(/printf\s*\(\s*"([^"\\]*(\\.[^"\\]*)*)"/g)];
+  if(printfs.length > 0) {
+    let result = '';
+    printfs.forEach(m => {
+      let s = m[1].replace(/\\n/g,'\n').replace(/\\t/g,'\t');
+      // Replace basic format specifiers with example values
+      s = s.replace(/%d/g,'[number]').replace(/%f/g,'[float]').replace(/%s/g,'[string]').replace(/%c/g,'[char]').replace(/%p/g,'[address]').replace(/%.1f/g,'[float]').replace(/%lu/g,'[size]');
+      result += s;
+    });
+    out.className = 'output-box';
+    out.textContent = '$ ./program\n' + result;
+    addXP(5);
+    showToast('✅ Code run kiya! +5 XP','success');
+  } else {
+    out.className = 'output-box error';
+    out.textContent = '// printf() nahi mili output mein.\n// Code likhte waqt printf() use karo.';
+  }
+}
+
+async function genAIPractice(topicId, levelIdx) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  const lv = topic.levels[levelIdx];
+  const res = document.getElementById('aiPracticeResult');
+  res.innerHTML = '<div class="ai-loading"><span class="ai-spinner"></span> Naya practice problem ban raha hai...</div>';
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':state.apiKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:600,
+        system:'Tu C programming teacher hai. Ek practical coding problem do with starter code. Hinglish mein brief description do. Format: PROBLEM: [desc] CODE: [c code]',
+        messages:[{role:'user', content:`Topic: ${topic.name}, Level: ${lv.name}. Ek unique practice problem do with starter C code. Problem thoda challenging ho.`}]
+      })
+    });
+    const data = await r.json();
+    const text = data.content?.[0]?.text || '';
+    const parts = text.split('CODE:');
+    const desc = parts[0].replace('PROBLEM:','').trim();
+    const code = parts[1]?.trim() || getOfflinePractice(topicId, levelIdx);
+    document.getElementById('codeEditor').value = code;
+    res.innerHTML = `<div class="theory-block" style="margin-bottom:12px"><strong>🤖 AI Problem:</strong> ${desc}</div>`;
+    addXP(5); showToast('🤖 Naya problem ready! +5 XP','success');
+  } catch(e) {
+    res.innerHTML = '<div class="offline-msg">API error. Key check karo.</div>';
+  }
+}
+
+function getHint(topicId, levelIdx) {
+  if(state.online) {
+    genAIHint(topicId, levelIdx);
+  } else {
+    showToast('Online mode mein hints milte hain! API key dalo.','info');
+  }
+}
+
+async function genAIHint(topicId, levelIdx) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  const lv = topic.levels[levelIdx];
+  const code = document.getElementById('codeEditor').value;
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':state.apiKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:200,
+        system:'C programming tutor — ek short helpful hint do, answer mat do. Hinglish mein.',
+        messages:[{role:'user', content:`Topic: ${lv.name}. Code:\n${code}\n\nEk hint do.`}]
+      })
+    });
+    const data = await r.json();
+    showToast('💡 ' + (data.content?.[0]?.text || 'Hint unavailable'),'info');
+  } catch(e) {}
+}
+
+function completeLevel() {
+  const topic = state.currentTopic;
+  const lv = topic.levels[state.currentLevel];
+  const prevProg = state.topicProgress[topic.id] || 0;
+  if(state.currentLevel >= prevProg) {
+    state.topicProgress[topic.id] = state.currentLevel + 1;
+    addXP(lv.xp);
+    state.lessonsComplete++;
+    if(state.topicProgress[topic.id] >= topic.levels.length) {
+      state.topicsComplete++; addXP(topic.xpReward);
+      showToast(`🎉 Topic Complete! +${topic.xpReward} BONUS XP!`,'success');
+    } else { showToast(`✅ Level ${state.currentLevel+1} Complete! +${lv.xp} XP`,'success'); }
+    saveProgress(); updateStats(); renderTopics(); renderProgress();
+  } else { showToast('Pehle se complete hai! Agli level try karo.','info'); }
+}
+
+// ══════════════════════════════════════
+//  QUIZ
+// ══════════════════════════════════════
+let quizCount = 0, quizCorrect = 0;
+
+function loadQuiz(topicId, levelIdx) {
+  const box = document.getElementById('quizContent');
+  quizCount = 0; quizCorrect = 0;
+  let aiSection = '';
+  if(state.online) {
+    aiSection = `<div class="ai-section">
+      <div class="ai-header"><div class="ai-dot"></div><div class="ai-title">AI Quiz Generator</div><span class="online-badge">UNLIMITED</span></div>
+      <button class="ai-gen-btn" onclick="genAIQuiz('${topicId}',${levelIdx})">🤖 AI Quiz Generate Karo (Unlimited!)</button>
+      <div id="aiQuizResult"></div>
+    </div>`;
+  }
+  const q = OFFLINE_QUIZ[Math.floor(Math.random() * OFFLINE_QUIZ.length)];
+  box.innerHTML = aiSection + renderQuizCard(q, 'offline');
+}
+
+function renderQuizCard(q, type) {
+  return `<div class="quiz-card" id="quizCard_${type}">
+    <div class="quiz-q">Q: ${q.q}</div>
+    <div class="quiz-opts">${q.opts.map((o,i) => `<div class="quiz-opt" onclick="answerQuiz(this,${i},${q.ans},'${type}','${(q.exp||'').replace(/'/g,"\\'")}')">  ${String.fromCharCode(65+i)}. ${o}</div>`).join('')}</div>
+    <div class="quiz-exp" id="quizExp_${type}">${q.exp||''}</div>
+    <button class="next-q-btn" id="nextBtn_${type}" onclick="nextQuestion('${type}')">➡ Agla Sawaal</button>
+  </div>`;
+}
+
+function answerQuiz(el, chosen, correct, type, exp) {
+  const card = document.getElementById('quizCard_'+type);
+  if(card.dataset.answered) return;
+  card.dataset.answered = '1';
+  const opts = card.querySelectorAll('.quiz-opt');
+  opts.forEach((o,i) => {
+    if(i===correct) o.classList.add('correct');
+    else if(i===chosen && chosen!==correct) o.classList.add('wrong');
+  });
+  const expEl = document.getElementById('quizExp_'+type);
+  if(expEl) { expEl.textContent = exp; expEl.classList.add('show'); }
+  const nb = document.getElementById('nextBtn_'+type);
+  if(nb) nb.classList.add('show');
+  quizCount++;
+  if(chosen===correct) { quizCorrect++; addXP(15); showToast('✅ Sahi! +15 XP','success'); }
+  else { showToast('❌ Galat! Explanation padho','error'); }
+}
+
+function nextQuestion(type) {
+  if(type==='offline') {
+    const q = OFFLINE_QUIZ[Math.floor(Math.random()*OFFLINE_QUIZ.length)];
+    document.getElementById('quizCard_offline').outerHTML = renderQuizCard(q,'offline');
+  } else { genAIQuiz(state.currentTopic.id, state.currentLevel); }
+}
+
+async function genAIQuiz(topicId, levelIdx) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  const lv = topic.levels[levelIdx];
+  const res = document.getElementById('aiQuizResult');
+  res.innerHTML = '<div class="ai-loading"><span class="ai-spinner"></span> AI question soch rahi hai...</div>';
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':state.apiKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:400,
+        system:'Generate a C programming MCQ in JSON only. Format: {"q":"question","opts":["A","B","C","D"],"ans":0,"exp":"explanation in Hinglish"} — ans is 0-indexed correct option. No markdown.',
+        messages:[{role:'user', content:`Topic: ${topic.name}, Level: ${lv.name}. Ek tricky MCQ do.`}]
+      })
+    });
+    const data = await r.json();
+    const text = data.content?.[0]?.text || '{}';
+    const q = JSON.parse(text.replace(/```json|```/g,'').trim());
+    state.aiQuizData = q;
+    res.innerHTML = renderQuizCard(q,'ai');
+    addXP(5); showToast('🤖 AI question ready!','info');
+  } catch(e) {
+    res.innerHTML = '<div class="offline-msg">Quiz generate nahi hua. Dobara try karo.</div>';
+  }
+}
+
+// ══════════════════════════════════════
+//  NAV TABS
+// ══════════════════════════════════════
+function showTab(name, el) {
+  ['home','roadmap','future','badges','progress'].forEach(t => {
+    document.getElementById(t+'Tab').style.display = t===name?'block':'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  if(name==='progress') renderProgress();
+  if(name==='badges') renderBadges();
+}
+
+function switchPath(el, path) {
+  document.querySelectorAll('.path-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('gatePath').style.display = (path==='gate'||path==='both') && path!=='offensive' ? 'block':'none';
+  document.getElementById('offensivePath').style.display = path==='offensive'?'block':'none';
+  document.getElementById('bothPath').style.display = path==='both'?'block':'none';
+  if(path==='gate') { document.getElementById('gatePath').style.display='block'; document.getElementById('offensivePath').style.display='none'; document.getElementById('bothPath').style.display='none'; }
+  if(path==='offensive') { document.getElementById('gatePath').style.display='none'; document.getElementById('offensivePath').style.display='block'; document.getElementById('bothPath').style.display='none'; }
+  if(path==='both') { document.getElementById('gatePath').style.display='none'; document.getElementById('offensivePath').style.display='none'; document.getElementById('bothPath').style.display='block'; }
+}
+
+// ══════════════════════════════════════
+//  ROADMAP
+// ══════════════════════════════════════
+function renderRoadmap() {
+  const cont = document.getElementById('roadmapContent');
+  cont.innerHTML = ROADMAP.map(p => `
+    <div class="rm-phase">
+      <div class="rm-phase-head">
+        <div class="rm-phase-num">${p.phase}</div>
+        <div><div class="rm-phase-name">${p.name}</div><div class="rm-phase-time">⏱ ${p.time}</div></div>
+      </div>
+      <div class="rm-items">${p.items.map((item,i) => `<div class="rm-item${i===p.current?' current':''}">${item}</div>`).join('')}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════
+//  BADGES
+// ══════════════════════════════════════
+function renderBadges() {
+  const grid = document.getElementById('badgesGrid');
+  grid.innerHTML = BADGES.map(b => {
+    const earned = b.earned || state.badges[b.id];
+    return `<div class="badge-card${earned?' earned':''}">
+      <div class="badge-icon${earned?'':' badge-locked'}">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-desc">${b.desc}</div>
+      ${earned?'<div style="color:var(--gold);font-size:10px;margin-top:4px">✓ Earned!</div>':''}
+    </div>`;
+  }).join('');
+}
+
+function checkBadges() {
+  if(state.lessonsComplete>=1) state.badges['curious']=true;
+  if(state.xp>=500) state.badges['xp500']=true;
+  if(state.xp>=1000) state.badges['xp1000']=true;
+  if((state.topicProgress['pointers']||0)>=TOPICS.find(t=>t.id==='pointers').levels.length) state.badges['pointer']=true;
+  if((state.topicProgress['memory']||0)>=TOPICS.find(t=>t.id==='memory').levels.length) state.badges['memory']=true;
+  if((state.topicProgress['bitops']||0)>=TOPICS.find(t=>t.id==='bitops').levels.length) state.badges['bits']=true;
+  if((state.topicProgress['algorithms']||0)>=TOPICS.find(t=>t.id==='algorithms').levels.length) state.badges['algo']=true;
+  if(quizCount>=10) state.badges['quizmaster']=true;
+  const allDone = TOPICS.every(t => (state.topicProgress[t.id]||0)>=t.levels.length);
+  if(allDone) state.badges['cyber']=true;
+}
+
+// ══════════════════════════════════════
+//  PROGRESS
+// ══════════════════════════════════════
+function renderProgress() {
+  document.getElementById('pXP').textContent = state.xp;
+  document.getElementById('pLessons').textContent = state.lessonsComplete;
+  document.getElementById('pStreak').textContent = state.streak;
+  document.getElementById('pTopics').textContent = state.topicsComplete;
+  const totalLevels = TOPICS.reduce((s,t)=>s+t.levels.length,0);
+  const doneLevels = TOPICS.reduce((s,t)=>s+(state.topicProgress[t.id]||0),0);
+  const pct = Math.round((doneLevels/totalLevels)*100);
+  document.getElementById('overallPct').textContent = pct+'%';
+  document.getElementById('overallBar').style.width = pct+'%';
+  document.getElementById('xpStat').textContent = state.xp;
+  document.getElementById('streakStat').textContent = state.streak;
+  const list = document.getElementById('topicProgList');
+  list.innerHTML = TOPICS.map(t => {
+    const done = state.topicProgress[t.id]||0;
+    const pct = Math.round((done/t.levels.length)*100);
+    return `<div class="tp-item"><div class="tp-top"><div class="tp-name">${t.icon} ${t.name}</div><div class="tp-pct">${pct}%</div></div><div class="tp-bar"><div class="tp-fill" style="width:${pct}%"></div></div></div>`;
+  }).join('');
+}
+
+function updateStats() {
+  document.getElementById('xpStat').textContent = state.xp;
+  checkBadges();
+}
+
+// ══════════════════════════════════════
+//  XP
+// ══════════════════════════════════════
+function addXP(amount) {
+  state.xp += amount;
+  const popup = document.getElementById('xpPopup');
+  popup.textContent = `+${amount} XP ⚡`;
+  popup.classList.add('show');
+  setTimeout(()=>popup.classList.remove('show'),2000);
+  updateStats(); saveProgress();
+}
+
+// ══════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ══════════════════════════════════════
+//  COPY CODE
+// ══════════════════════════════════════
+function copyCode(btn) {
+  const code = btn.nextElementSibling.textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent='✓ Copied!';
+    setTimeout(()=>btn.textContent='Copy',2000);
+  });
+}
+
+// ══════════════════════════════════════
+//  SAVE/LOAD
+// ══════════════════════════════════════
+function saveProgress() {
+  localStorage.setItem('hacklearn_v2', JSON.stringify({xp:state.xp,streak:state.streak,lessonsComplete:state.lessonsComplete,topicsComplete:state.topicsComplete,topicProgress:state.topicProgress,badges:state.badges}));
+}
+function loadProgress() {
+  try {
+    const d = JSON.parse(localStorage.getItem('hacklearn_v2'));
+    if(d) { Object.assign(state,d); updateStats(); renderProgress(); renderTopics(); }
+  } catch(e){}
+}
+</script>
+</body>
+</html>
