@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7c3aed">
+<title>HackLearn — C for Cyber Security</title>
+<style>
+:root{
+  --bg:#0a0a14;--bg2:#10101e;--card:#1a1a2e;--card2:#1e1e3a;
+  --accent:#7c3aed;--accent2:#a855f7;--cyan:#22d3ee;
+  --orange:#f97316;--red:#ef4444;--gold:#fbbf24;
+  --text:#e2e8f0;--text2:#94a3b8;--border:#2d2d4e;
+  --success:#3b82f6;--success-dark:#2563eb;--warning:#f59e0b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+.screen{display:none;min-height:100vh}.screen.active{display:block}
+
+/* LANG SELECT */
+#langScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:radial-gradient(ellipse at 20% 20%,#1a0a3e 0%,var(--bg) 60%),radial-gradient(ellipse at 80% 80%,#0a1a3e 0%,transparent 60%)}
+.lang-logo{font-size:56px;margin-bottom:16px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.lang-title{font-size:32px;font-weight:900;background:linear-gradient(135deg,var(--accent2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;text-align:center}
+.lang-sub{color:var(--text2);text-align:center;margin-bottom:40px;font-size:15px}
+.lang-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;width:100%;max-width:500px}
+.lang-btn{background:var(--card);border:2px solid var(--border);border-radius:16px;padding:24px 16px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.lang-btn:hover,.lang-btn.selected{border-color:var(--accent);background:var(--card2);transform:translateY(-4px);box-shadow:0 8px 24px rgba(124,58,237,.3)}
+.lb-icon{font-size:36px;margin-bottom:8px;display:block}.lb-name{font-size:18px;font-weight:700}.lb-sub{font-size:11px;color:var(--text2);margin-top:4px}
+.lb-badge{position:absolute;top:10px;right:10px;background:var(--accent);color:#fff;font-size:9px;padding:2px 6px;border-radius:10px;font-weight:700}
+.lang-start-btn{margin-top:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:14px;padding:16px 48px;font-size:18px;font-weight:800;cursor:pointer;width:100%;max-width:500px;transition:all .3s;box-shadow:0 4px 20px rgba(124,58,237,.4)}
+.lang-start-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,.6)}
+
+/* TOP BAR */
+#appScreen{padding-bottom:90px}
+.top-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.top-logo{font-size:20px;font-weight:900;background:linear-gradient(135deg,var(--accent2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.top-stats{display:flex;gap:12px;align-items:center}
+.stat-pill{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:600}
+.mode-toggle{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:all .3s;color:var(--text2)}
+.mode-toggle.online{border-color:var(--cyan);color:var(--cyan);background:rgba(34,211,238,.1)}
+
+/* HOME */
+.home-hero{background:linear-gradient(135deg,#1a0a3e,#0a1a2e);padding:24px 16px;border-bottom:1px solid var(--border)}
+.home-hero h1{font-size:22px;font-weight:900;margin-bottom:6px}
+.home-hero p{color:var(--text2);font-size:14px;line-height:1.6}
+.progress-bar-wrap{margin-top:16px}.progress-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.progress-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width .5s}
+.section-title{font-size:14px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;padding:20px 16px 10px}
+
+/* TOPICS */
+.topics-grid{padding:0 16px;display:flex;flex-direction:column;gap:12px;padding-bottom:16px}
+.topic-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .3s}
+.topic-card:hover:not(.locked){border-color:var(--accent);transform:translateX(4px);box-shadow:0 4px 20px rgba(124,58,237,.2)}
+.topic-card.locked{opacity:.6;cursor:not-allowed}.topic-card.completed{border-color:var(--success)}
+.tc-header{display:flex;align-items:center;gap:14px;padding:16px}
+.tc-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.tc-info{flex:1}.tc-title{font-size:16px;font-weight:700;margin-bottom:4px}.tc-sub{font-size:12px;color:var(--text2)}
+.tc-meta{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.tc-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
+.tag-easy{background:rgba(59,130,246,.15);color:var(--success)}.tag-medium{background:rgba(245,158,11,.15);color:var(--warning)}.tag-hard{background:rgba(239,68,68,.15);color:var(--red)}.tag-cyber{background:rgba(124,58,237,.15);color:var(--accent2)}
+.tc-arrow{color:var(--text2);font-size:18px}
+.tc-progress{height:4px;background:var(--border)}.tc-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .5s}
+
+/* LEVELS */
+#levelScreen{padding:0 0 90px}
+.level-header{background:linear-gradient(135deg,#1a0a3e,#0a1a2e);padding:20px 16px;border-bottom:1px solid var(--border)}
+.back-btn{display:flex;align-items:center;gap:8px;color:var(--accent2);font-size:14px;font-weight:600;cursor:pointer;margin-bottom:12px}
+.level-topic-name{font-size:22px;font-weight:900}.level-topic-sub{color:var(--text2);font-size:13px;margin-top:4px}
+.levels-list{padding:16px;display:flex;flex-direction:column;gap:12px}
+.level-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:14px}
+.level-item.unlocked:hover{border-color:var(--accent);background:var(--card2)}.level-item.locked{opacity:.5;cursor:not-allowed}.level-item.completed{border-color:var(--success)}
+.level-num{width:42px;height:42px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0}
+.level-item.unlocked .level-num{border-color:var(--accent);color:var(--accent2);background:rgba(124,58,237,.1)}
+.level-item.completed .level-num{border-color:var(--success);color:var(--success);background:rgba(59,130,246,.1)}
+.level-info{flex:1}.level-name{font-size:15px;font-weight:700}.level-desc{font-size:12px;color:var(--text2);margin-top:3px}.level-xp{font-size:12px;color:var(--gold);font-weight:700}
+
+/* LESSON */
+#lessonScreen{padding:0 0 90px}
+.lesson-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px;position:sticky;top:0;z-index:50}
+.lesson-tabs{display:flex;gap:8px;margin-top:12px}
+.l-tab{flex:1;padding:10px;text-align:center;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--border);color:var(--text2);transition:all .3s}
+.l-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.lesson-body{padding:16px}
+
+/* THEORY */
+.theory-block{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;line-height:1.8;font-size:14px}
+.theory-block h2{font-size:18px;margin-bottom:12px;color:var(--accent2)}.theory-block h3{font-size:15px;margin:16px 0 8px;color:var(--cyan)}.theory-block p{margin-bottom:12px}
+.code-block{background:#0d0d1a;border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0;font-family:'Courier New',monospace;font-size:13px;overflow-x:auto;position:relative}
+.code-block pre{color:#e2e8f0;white-space:pre-wrap}
+.code-kw{color:#a78bfa}.code-fn{color:#22d3ee}.code-str{color:#34d399}.code-cm{color:#64748b;font-style:italic}.code-num{color:#f97316}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer}
+.tip-box{background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.3);border-radius:10px;padding:14px;margin:12px 0}
+.tip-box .tip-label{color:var(--accent2);font-weight:700;font-size:12px;margin-bottom:6px}
+.cyber-box{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:14px;margin:12px 0}
+.cyber-box .cb-label{color:var(--success);font-weight:700;font-size:12px;margin-bottom:6px}
+
+/* PRACTICE */
+.practice-area{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px}
+.pa-header{padding:14px 16px;background:var(--card2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.pa-title{font-size:14px;font-weight:700}
+.pa-code{width:100%;background:#0d0d1a;color:#e2e8f0;border:none;padding:16px;font-family:'Courier New',monospace;font-size:13px;resize:vertical;min-height:200px;outline:none;tab-size:4}
+.pa-footer{padding:12px 16px;display:flex;gap:10px}
+.run-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;flex:1}
+.hint-btn{background:var(--card2);color:var(--accent2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer}
+.output-box{background:#050510;border-top:1px solid var(--border);padding:14px 16px;font-family:'Courier New',monospace;font-size:13px;min-height:60px;color:#22d3ee;white-space:pre-wrap}
+.output-box.error{color:var(--red)}
+.complete-btn{width:100%;background:linear-gradient(135deg,var(--success),var(--success-dark));color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px}
+
+/* QUIZ */
+.quiz-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}
+.quiz-q{font-size:16px;font-weight:700;margin-bottom:16px;line-height:1.5}
+.quiz-opts{display:flex;flex-direction:column;gap:10px}
+.quiz-opt{background:var(--card2);border:2px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .3s;font-size:14px;font-weight:500}
+.quiz-opt:hover:not(.correct):not(.wrong){border-color:var(--accent);background:rgba(124,58,237,.1)}
+.quiz-opt.correct{border-color:var(--success);background:rgba(59,130,246,.1);color:var(--success)}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(239,68,68,.1);color:var(--red)}
+.quiz-exp{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:10px;padding:14px;margin-top:12px;font-size:13px;line-height:1.6;display:none}
+.quiz-exp.show{display:block}
+.next-q-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:12px;display:none}
+.next-q-btn.show{display:block}
+
+/* AI */
+.ai-section{background:var(--card);border:1px solid rgba(124,58,237,.3);border-radius:14px;padding:16px;margin-bottom:16px}
+.ai-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ai-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);animation:pulse2 1.5s infinite}
+@keyframes pulse2{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.ai-title{font-size:14px;font-weight:700;color:var(--cyan)}.ai-status{font-size:11px;color:var(--text2)}
+.ai-gen-btn{width:100%;background:linear-gradient(135deg,rgba(34,211,238,.2),rgba(124,58,237,.2));border:1px solid var(--cyan);color:var(--cyan);border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;transition:all .3s}
+.ai-gen-btn:hover{background:linear-gradient(135deg,rgba(34,211,238,.3),rgba(124,58,237,.3))}
+.ai-loading{text-align:center;padding:20px;color:var(--text2);font-size:14px}
+.ai-spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent2);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.online-badge{background:rgba(34,211,238,.15);border:1px solid var(--cyan);color:var(--cyan);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:800;display:inline-block;margin-left:8px}
+
+/* ROADMAP */
+.rm-title{font-size:20px;font-weight:900;padding:20px 16px 10px}.rm-section{padding:16px}
+.rm-phase{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+.rm-phase-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.rm-phase-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;flex-shrink:0}
+.rm-phase-name{font-size:15px;font-weight:700}.rm-phase-time{font-size:11px;color:var(--text2)}
+.rm-items{display:flex;flex-direction:column;gap:6px}
+.rm-item{display:flex;align-items:center;gap:10px;font-size:13px;padding:6px 0}
+.rm-item::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.rm-item.current{color:var(--accent2);font-weight:700}.rm-item.current::before{background:var(--accent2);box-shadow:0 0 6px var(--accent2)}
+
+/* BADGES */
+.badges-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px}
+.badge-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;transition:all .3s}
+.badge-card.earned{border-color:var(--gold);background:rgba(251,191,36,.05)}.badge-card.earned:hover{transform:scale(1.05)}
+.badge-icon{font-size:32px;margin-bottom:8px}.badge-name{font-size:11px;font-weight:700}.badge-desc{font-size:10px;color:var(--text2);margin-top:3px;line-height:1.3}
+.badge-locked{opacity:.35}
+
+/* PROGRESS */
+.prog-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:16px}
+.prog-stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
+.prog-stat-val{font-size:32px;font-weight:900;background:linear-gradient(135deg,var(--accent2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.prog-stat-label{font-size:12px;color:var(--text2);margin-top:4px}
+.topic-prog-list{padding:0 16px 16px;display:flex;flex-direction:column;gap:10px}
+.tp-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
+.tp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.tp-name{font-size:14px;font-weight:600}.tp-pct{font-size:13px;color:var(--accent2);font-weight:700}
+.tp-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.tp-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);display:flex;padding:8px 0 env(safe-area-inset-bottom,8px);z-index:200}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:8px 4px;transition:all .2s;color:var(--text2);font-size:10px;font-weight:600}
+.nav-item .n-icon{font-size:22px}.nav-item.active{color:var(--accent2)}.nav-item.active .n-icon{filter:drop-shadow(0 0 6px var(--accent2))}
+
+/* FUTURE */
+.future-hero{background:linear-gradient(135deg,#0d0d2e,#1a0a3e,#0a1a2e);padding:28px 16px 20px;text-align:center;border-bottom:1px solid var(--border)}
+.future-hero-icon{font-size:48px;margin-bottom:10px;animation:float 3s ease-in-out infinite}
+.future-hero-title{font-size:24px;font-weight:900;background:linear-gradient(135deg,#fbbf24,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.future-hero-sub{font-size:13px;color:var(--text2);margin-top:6px;line-height:1.5}
+.path-selector{display:flex;gap:8px;padding:16px;overflow-x:auto}
+.path-btn{flex-shrink:0;background:var(--card);border:2px solid var(--border);border-radius:24px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:all .3s;color:var(--text2);white-space:nowrap}
+.path-btn.active{border-color:var(--accent2);color:var(--accent2);background:rgba(168,85,247,.1)}
+.career-intro{display:flex;align-items:center;gap:14px;padding:16px;margin:0 16px 4px;border-radius:14px}
+.gate-intro{background:linear-gradient(135deg,rgba(34,211,238,.08),rgba(59,130,246,.08));border:1px solid rgba(34,211,238,.2)}
+.offensive-intro{background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(168,85,247,.08));border:1px solid rgba(239,68,68,.2)}
+.both-intro{background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(249,115,22,.08));border:1px solid rgba(251,191,36,.2)}
+.ci-icon{font-size:36px}.ci-title{font-size:17px;font-weight:800}.ci-desc{font-size:12px;color:var(--text2);margin-top:3px}
+.fp-section-title{font-size:12px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;padding:18px 16px 8px}
+.fp-phase{margin:0 16px 8px;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.beginner-phase{border-color:rgba(59,130,246,.3)}.intermediate-phase{border-color:rgba(245,158,11,.3)}.advanced-phase{border-color:rgba(239,68,68,.3)}
+.fp-phase-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}
+.fp-phase-badge{font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px}
+.fp-phase-badge.beginner{background:rgba(59,130,246,.15);color:var(--success)}.fp-phase-badge.intermediate{background:rgba(245,158,11,.15);color:var(--gold)}.fp-phase-badge.advanced{background:rgba(239,68,68,.15);color:var(--red)}
+.fp-phase-time{font-size:11px;color:var(--text2)}
+.fp-steps{padding:12px 16px;display:flex;flex-direction:column}
+.fp-step{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}.fp-step:last-child{border-bottom:none}
+.fp-step-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--border);margin-top:4px;flex-shrink:0;background:var(--bg2)}
+.current-dot{background:var(--accent2);border-color:var(--accent2);box-shadow:0 0 8px var(--accent2)}
+.fp-step.current .fp-step-title{color:var(--accent2)}.fp-step-title{font-size:14px;font-weight:700;margin-bottom:4px}.fp-step-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.fp-step-tags{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.fst{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.fst.gate{background:rgba(34,211,238,.1);color:var(--cyan)}.fst.cyber{background:rgba(239,68,68,.12);color:#f87171}.fst.important{background:rgba(251,191,36,.12);color:var(--gold)}
+.resources-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 16px 8px}
+.resource-card{border-radius:12px;padding:14px;border:1px solid var(--border)}
+.gate-card{background:rgba(34,211,238,.05);border-color:rgba(34,211,238,.15)}.cyber-card{background:rgba(239,68,68,.05);border-color:rgba(239,68,68,.15)}
+.rc-icon{font-size:20px;margin-bottom:6px}.rc-name{font-size:13px;font-weight:700}.rc-desc{font-size:11px;color:var(--text2);margin-top:2px}
+.career-outcome{margin:8px 16px 16px;border-radius:14px;padding:16px}
+.gate-outcome{background:linear-gradient(135deg,rgba(34,211,238,.08),rgba(59,130,246,.08));border:1px solid rgba(34,211,238,.2)}
+.cyber-outcome{background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(168,85,247,.08));border:1px solid rgba(239,68,68,.2)}
+.co-title{font-size:15px;font-weight:800;margin-bottom:10px}.co-items{display:flex;flex-direction:column;gap:8px}.co-item{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px}
+.both-timeline{padding:0 16px 16px;display:flex;flex-direction:column;gap:12px}
+.bt-item{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}.bt-item.final-item{border-color:var(--gold)}
+.bt-year{background:linear-gradient(135deg,var(--accent),var(--accent2));padding:12px 16px;font-size:13px;font-weight:800;text-align:center;line-height:1.3}
+.bt-year span{font-size:10px;font-weight:500;opacity:.8}.bt-content{padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.bt-gate,.bt-cyber{font-size:13px;line-height:1.5}
+.bt-label{font-size:10px;font-weight:800;padding:2px 8px;border-radius:8px;margin-right:6px}
+.gate-label{background:rgba(34,211,238,.15);color:var(--cyan)}.cyber-label{background:rgba(239,68,68,.15);color:#f87171}
+.bt-note{font-size:12px;color:var(--gold);background:rgba(251,191,36,.08);border-radius:8px;padding:8px 10px;border-left:3px solid var(--gold)}
+.offline-msg{background:rgba(239,68,68,.1);border:1px solid var(--red);border-radius:10px;padding:12px 16px;margin:12px 0;color:var(--red);font-size:13px;text-align:center}
+
+/* TOAST & XP */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:14px;font-weight:600;z-index:999;transition:transform .3s;max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}.toast.success{border-color:var(--success);color:var(--success)}.toast.error{border-color:var(--red);color:var(--red)}.toast.info{border-color:var(--accent2);color:var(--accent2)}
+.xp-popup{position:fixed;bottom:110px;right:20px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:12px;padding:10px 16px;font-size:16px;font-weight:900;z-index:500;opacity:0;transform:translateY(20px);transition:all .4s;pointer-events:none}
+.xp-popup.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- LANG SELECT -->
+<div id="langScreen" class="screen active">
+  <div class="lang-logo">⚡</div>
+  <div class="lang-title">HackLearn</div>
+  <div class="lang-sub">Programming Language chunno apni padhai shuru karne ke liye</div>
+  <div class="lang-grid">
+    <div class="lang-btn selected" data-lang="c"><div class="lb-badge">HOT</div><span class="lb-icon">🔷</span><div class="lb-name">C Language</div><div class="lb-sub">Cyber Security ka base</div></div>
+    <div class="lang-btn" data-lang="cpp"><div class="lb-badge">SOON</div><span class="lb-icon">⚙️</span><div class="lb-name">C++</div><div class="lb-sub">System programming</div></div>
+    <div class="lang-btn" data-lang="python"><div class="lb-badge">SOON</div><span class="lb-icon">🐍</span><div class="lb-name">Python</div><div class="lb-sub">Hacking automation</div></div>
+    <div class="lang-btn" data-lang="linux"><div class="lb-badge">SOON</div><span class="lb-icon">🐧</span><div class="lb-name">Linux/Bash</div><div class="lb-sub">Pentesting foundation</div></div>
+  </div>
+  <button class="lang-start-btn" id="langStartBtn">🚀 C Language Shuru Karo</button>
+</div>
+
+<!-- APP SCREEN -->
+<div id="appScreen" class="screen">
+  <div class="top-bar">
+    <div class="top-logo">⚡ HackLearn</div>
+    <div class="top-stats">
+      <div class="stat-pill">🔥 <span id="streakStat">1</span>d</div>
+      <div class="stat-pill">⚡ <span id="xpStat">0</span></div>
+      <div class="mode-toggle" id="modeToggle">OFFLINE</div>
+    </div>
+  </div>
+
+  <div id="homeTab" class="tab-content">
+    <div class="home-hero">
+      <h1>Namaste, Cyber Warrior 👾</h1>
+      <p>C Programming seekho — Cybersecurity ka asli base. Ek ek topic master karo!</p>
+      <div class="progress-bar-wrap">
+        <div class="progress-label"><span>Overall Progress</span><span id="overallPct">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="overallBar" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="section-title">📚 C Language Topics — Beginner se Advanced (18 Topics)</div>
+    <div class="topics-grid" id="topicsGrid"></div>
+  </div>
+
+  <div id="roadmapTab" class="tab-content" style="display:none">
+    <div class="rm-title">🗺️ C Programming Roadmap</div>
+    <div class="rm-section" id="roadmapContent"></div>
+  </div>
+
+  <div id="futureTab" class="tab-content" style="display:none">
+    <div class="future-hero">
+      <div class="future-hero-icon">🔭</div>
+      <div class="future-hero-title">Future Planning</div>
+      <div class="future-hero-sub">Apna career path chunno — Beginner se Expert tak ka poora roadmap</div>
+    </div>
+    <div class="path-selector">
+      <div class="path-btn active" data-path="gate">🎓 GATE / MTech</div>
+      <div class="path-btn" data-path="offensive">💀 Offensive Security</div>
+      <div class="path-btn" data-path="both">⚔️ Dono Saath</div>
+    </div>
+    <div id="gatePath">
+      <div class="career-intro gate-intro"><div class="ci-icon">🎓</div><div><div class="ci-title">GATE CS/IT Path</div><div class="ci-desc">IIT/NIT MTech, PSU Jobs — ₹6-20 LPA</div></div></div>
+      <div class="fp-section-title">📍 BEGINNER — 1st Year</div>
+      <div class="fp-phase beginner-phase">
+        <div class="fp-phase-header"><div class="fp-phase-badge beginner">BEGINNER</div><div class="fp-phase-time">⏱ Month 1-6</div></div>
+        <div class="fp-steps">
+          <div class="fp-step current"><div class="fp-step-dot current-dot"></div><div><div class="fp-step-title">🔷 C Programming ← Abhi Yahan Ho</div><div class="fp-step-desc">Variables, pointers, arrays — GATE mein direct aata hai</div><div class="fp-step-tags"><span class="fst gate">GATE Topic</span><span class="fst important">Most Important</span></div></div></div>
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">📐 Engineering Mathematics</div><div class="fp-step-desc">Discrete Maths, Linear Algebra, Probability — college mein hai</div><div class="fp-step-tags"><span class="fst gate">15% Weightage</span></div></div></div>
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">🔢 Data Structures</div><div class="fp-step-desc">Arrays, Linked List, Stack, Queue, Trees — C mein implement karo</div><div class="fp-step-tags"><span class="fst gate">GATE Topic</span><span class="fst important">High Marks</span></div></div></div>
+        </div>
+      </div>
+      <div class="fp-section-title">🔼 INTERMEDIATE — Year 2</div>
+      <div class="fp-phase intermediate-phase">
+        <div class="fp-phase-header"><div class="fp-phase-badge intermediate">INTERMEDIATE</div><div class="fp-phase-time">⏱ Month 6-18</div></div>
+        <div class="fp-steps">
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">🖥️ Operating Systems</div><div class="fp-step-desc">Process, Thread, Deadlock, Memory Management</div><div class="fp-step-tags"><span class="fst gate">High Marks</span></div></div></div>
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">🌐 Computer Networks</div><div class="fp-step-desc">OSI, TCP/IP, Routing, Subnetting</div><div class="fp-step-tags"><span class="fst gate">GATE Topic</span></div></div></div>
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">🗄️ DBMS</div><div class="fp-step-desc">ER Diagrams, SQL, Normalization, ACID</div><div class="fp-step-tags"><span class="fst gate">GATE Topic</span></div></div></div>
+        </div>
+      </div>
+      <div class="fp-section-title">🏆 ADVANCED — Year 3-4</div>
+      <div class="fp-phase advanced-phase">
+        <div class="fp-phase-header"><div class="fp-phase-badge advanced">ADVANCED</div><div class="fp-phase-time">⏱ Last 6 Months</div></div>
+        <div class="fp-steps">
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">🔡 Theory of Computation</div><div class="fp-step-desc">DFA, NFA, CFG, Turing Machine</div><div class="fp-step-tags"><span class="fst gate">GATE Topic</span></div></div></div>
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">📝 Previous Year Papers 2015-2024</div><div class="fp-step-desc">Sab papers solve karo — most important step!</div><div class="fp-step-tags"><span class="fst important">Must Do</span></div></div></div>
+        </div>
+      </div>
+      <div class="career-outcome gate-outcome"><div class="co-title">🎓 GATE ke Baad Career</div><div class="co-items"><div class="co-item">🏛️ IIT/NIT MTech</div><div class="co-item">🔬 ISRO / BARC / DRDO</div><div class="co-item">🏢 PSU Jobs — BSNL, ONGC</div><div class="co-item">💰 ₹6-20 LPA</div></div></div>
+    </div>
+    <div id="offensivePath" style="display:none">
+      <div class="career-intro offensive-intro"><div class="ci-icon">💀</div><div><div class="ci-title">Offensive Security Path</div><div class="ci-desc">Ethical Hacker, Pentester, Red Team — ₹8-40 LPA</div></div></div>
+      <div class="fp-section-title">📍 BEGINNER</div>
+      <div class="fp-phase beginner-phase">
+        <div class="fp-phase-header"><div class="fp-phase-badge beginner">BEGINNER</div><div class="fp-phase-time">⏱ Month 1-3</div></div>
+        <div class="fp-steps">
+          <div class="fp-step current"><div class="fp-step-dot current-dot"></div><div><div class="fp-step-title">🔷 C Programming ← Abhi Yahan Ho</div><div class="fp-step-desc">Pointers, memory, buffers — exploit likhne ka base</div><div class="fp-step-tags"><span class="fst cyber">Exploit Base</span><span class="fst important">Critical</span></div></div></div>
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">🐧 Linux Basics</div><div class="fp-step-desc">Terminal, filesystem, permissions, bash scripting</div><div class="fp-step-tags"><span class="fst cyber">Must Have</span></div></div></div>
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">🌐 Networking Basics</div><div class="fp-step-desc">IP, TCP/IP, DNS, HTTP, Ports</div><div class="fp-step-tags"><span class="fst cyber">Foundation</span></div></div></div>
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">🐍 Python Basics</div><div class="fp-step-desc">Scripts, automation, hacking tools Python mein bante hain</div><div class="fp-step-tags"><span class="fst cyber">Hacking Tool</span></div></div></div>
+        </div>
+      </div>
+      <div class="fp-section-title">🔼 INTERMEDIATE — Month 3-9</div>
+      <div class="fp-phase intermediate-phase">
+        <div class="fp-phase-header"><div class="fp-phase-badge intermediate">INTERMEDIATE</div><div class="fp-phase-time">⏱ 6 Months</div></div>
+        <div class="fp-steps">
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">🌍 Web Hacking — OWASP Top 10</div><div class="fp-step-desc">SQLi, XSS, CSRF, IDOR — bug bounty ka base</div><div class="fp-step-tags"><span class="fst cyber">Bug Bounty</span><span class="fst important">High Demand</span></div></div></div>
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">⚔️ Metasploit & Burp Suite</div><div class="fp-step-desc">Core pentesting tools seekho — lab mein practice karo</div><div class="fp-step-tags"><span class="fst cyber">Core Tools</span></div></div></div>
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">🏁 CTF Challenges</div><div class="fp-step-desc">PicoCTF, TryHackMe — portfolio banao</div><div class="fp-step-tags"><span class="fst cyber">Portfolio</span></div></div></div>
+        </div>
+      </div>
+      <div class="fp-section-title">🏆 ADVANCED — Month 9+</div>
+      <div class="fp-phase advanced-phase">
+        <div class="fp-phase-header"><div class="fp-phase-badge advanced">ADVANCED</div><div class="fp-phase-time">⏱ Pro Level</div></div>
+        <div class="fp-steps">
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">💥 Binary Exploitation</div><div class="fp-step-desc">Buffer Overflow, ROP Chains — C ka seedha use! Yahi C sikha tha</div><div class="fp-step-tags"><span class="fst cyber">C Direct Use</span><span class="fst important">OSCP Needed</span></div></div></div>
+          <div class="fp-step"><div class="fp-step-dot"></div><div><div class="fp-step-title">🏆 OSCP Certification</div><div class="fp-step-desc">Industry gold standard — 24 hour practical exam</div><div class="fp-step-tags"><span class="fst important">Gold Standard</span></div></div></div>
+        </div>
+      </div>
+      <div class="resources-grid">
+        <div class="resource-card cyber-card"><div class="rc-icon">🟢</div><div class="rc-name">TryHackMe</div><div class="rc-desc">Beginner — guided paths</div></div>
+        <div class="resource-card cyber-card"><div class="rc-icon">⬛</div><div class="rc-name">HackTheBox</div><div class="rc-desc">Intermediate — real machines</div></div>
+        <div class="resource-card cyber-card"><div class="rc-icon">🕷️</div><div class="rc-name">PortSwigger</div><div class="rc-desc">Web hacking — free labs</div></div>
+        <div class="resource-card cyber-card"><div class="rc-icon">💰</div><div class="rc-name">HackerOne</div><div class="rc-desc">Bug bounty — real money</div></div>
+      </div>
+      <div class="career-outcome cyber-outcome"><div class="co-title">💀 Career Options</div><div class="co-items"><div class="co-item">🔍 Penetration Tester — ₹8-25 LPA</div><div class="co-item">🐛 Bug Bounty Hunter — $1000+ per bug</div><div class="co-item">🔴 Red Team Operator — ₹15-40 LPA</div></div></div>
+    </div>
+    <div id="bothPath" style="display:none">
+      <div class="career-intro both-intro"><div class="ci-icon">⚔️</div><div><div class="ci-title">Dono Saath — Best Strategy</div><div class="ci-desc">College mein GATE + simultaneously Offensive Security</div></div></div>
+      <div class="both-timeline">
+        <div class="bt-item"><div class="bt-year">Year 1<br><span>Semester 1-2</span></div><div class="bt-content"><div class="bt-gate"><span class="bt-label gate-label">🎓 GATE</span>C Programming, Discrete Maths, DS Basics</div><div class="bt-cyber"><span class="bt-label cyber-label">💀 CYBER</span>C Programming, Linux Basics, Networking</div><div class="bt-note">💡 C Programming dono mein common — ek kaam, double faayda!</div></div></div>
+        <div class="bt-item"><div class="bt-year">Year 2<br><span>Semester 3-4</span></div><div class="bt-content"><div class="bt-gate"><span class="bt-label gate-label">🎓 GATE</span>OS, Networks, DBMS, Algorithms</div><div class="bt-cyber"><span class="bt-label cyber-label">💀 CYBER</span>TryHackMe, Web Hacking OWASP, Python</div><div class="bt-note">💡 OS aur Networking dono paths mein kaam aata hai!</div></div></div>
+        <div class="bt-item"><div class="bt-year">Year 3-4<br><span>Final Push</span></div><div class="bt-content"><div class="bt-gate"><span class="bt-label gate-label">🎓 GATE</span>Full revision, Previous Papers daily</div><div class="bt-cyber"><span class="bt-label cyber-label">💀 CYBER</span>eJPT cert, HackTheBox, OSCP prep</div><div class="bt-note">💡 GATE dedo — IIT MTech bhi option rahe!</div></div></div>
+        <div class="bt-item final-item"><div class="bt-year">After Graduation<br><span>Career Launch</span></div><div class="bt-content"><div class="bt-gate"><span class="bt-label gate-label">🎓</span>IIT/NIT MTech, PSU Job</div><div class="bt-cyber"><span class="bt-label cyber-label">💀</span>OSCP, Pentester/Bug Bounty</div><div class="bt-note">🎯 Dono options open — best opportunity choose karo!</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="badgesTab" class="tab-content" style="display:none">
+    <div class="section-title" style="padding:20px 16px 10px">🏆 Badges</div>
+    <div class="badges-grid" id="badgesGrid"></div>
+  </div>
+
+  <div id="progressTab" class="tab-content" style="display:none">
+    <div class="section-title" style="padding:20px 16px 10px">📊 Tumhara Progress</div>
+    <div class="prog-stats">
+      <div class="prog-stat"><div class="prog-stat-val" id="pXP">0</div><div class="prog-stat-label">Total XP</div></div>
+      <div class="prog-stat"><div class="prog-stat-val" id="pLessons">0</div><div class="prog-stat-label">Lessons Done</div></div>
+      <div class="prog-stat"><div class="prog-stat-val" id="pStreak">1</div><div class="prog-stat-label">Day Streak 🔥</div></div>
+      <div class="prog-stat"><div class="prog-stat-val" id="pTopics">0</div><div class="prog-stat-label">Topics Complete</div></div>
+    </div>
+    <div class="section-title">Topic Progress</div>
+    <div class="topic-prog-list" id="topicProgList"></div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active" data-tab="home"><div class="n-icon">🏠</div>Home</div>
+    <div class="nav-item" data-tab="roadmap"><div class="n-icon">🗺️</div>Roadmap</div>
+    <div class="nav-item" data-tab="future"><div class="n-icon">🔭</div>Future</div>
+    <div class="nav-item" data-tab="badges"><div class="n-icon">🏆</div>Badges</div>
+    <div class="nav-item" data-tab="progress"><div class="n-icon">📊</div>Progress</div>
+  </div>
+</div>
+
+<!-- LEVEL SCREEN -->
+<div id="levelScreen" class="screen">
+  <div class="level-header">
+    <div class="back-btn" id="levelBackBtn">← Wapas</div>
+    <div class="level-topic-name" id="levelTopicName"></div>
+    <div class="level-topic-sub" id="levelTopicSub"></div>
+  </div>
+  <div class="levels-list" id="levelsList"></div>
+</div>
+
+<!-- LESSON SCREEN -->
+<div id="lessonScreen" class="screen">
+  <div class="lesson-header">
+    <div class="back-btn" id="lessonBackBtn">← Wapas</div>
+    <div style="font-size:17px;font-weight:800" id="lessonTitle"></div>
+    <div class="lesson-tabs">
+      <div class="l-tab active" data-tab="theory">📖 Theory</div>
+      <div class="l-tab" data-tab="practice">💻 Practice</div>
+      <div class="l-tab" data-tab="quiz">🎯 Quiz</div>
+    </div>
+  </div>
+  <div class="lesson-body">
+    <div id="theoryContent"></div>
+    <div id="practiceContent" style="display:none"></div>
+    <div id="quizContent" style="display:none"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="xp-popup" id="xpPopup"></div>
+
+<script>
+// ══════════════════════════════════════
+// 18 TOPICS DATA
+// ══════════════════════════════════════
+const TOPICS = [
+  {id:'basics',icon:'🌱',color:'#3b82f6',name:'C Language Basics',sub:'Variables, Data Types, I/O — Foundation of Everything',diff:'easy',cyber:'Memory Basics',xpReward:100,
+    levels:[
+      {name:'C Kya Hai? Setup & First Program',desc:'History, uses, compiler, hello world',xp:20},
+      {name:'Variables & Data Types',desc:'int, float, char, double — size aur range',xp:25},
+      {name:'Input/Output — printf & scanf',desc:'Screen pe print karna, user se input lena',xp:25},
+      {name:'Operators',desc:'Arithmetic, relational, logical, assignment operators',xp:30},
+    ]
+  },
+  {id:'control',icon:'🔀',color:'#7c3aed',name:'Control Flow',sub:'if-else, loops, switch — Program ka direction',diff:'easy',cyber:'Conditional Logic in Exploits',xpReward:150,
+    levels:[
+      {name:'if-else Statements',desc:'Basic conditions — login authentication logic',xp:25},
+      {name:'Nested if-else & else-if ladder',desc:'Multiple conditions handle karna',xp:25},
+      {name:'for Loop — Definite Iteration',desc:'Counted loops — brute force concept',xp:30},
+      {name:'while & do-while Loop',desc:'Condition-based loops — monitoring aur polling',xp:30},
+      {name:'switch-case, break & continue',desc:'Multiple options, loop control statements',xp:35},
+    ]
+  },
+  {id:'functions',icon:'⚡',color:'#f97316',name:'Functions',sub:'Code reuse, modularity — Professional C ka base',diff:'easy',cyber:'Shellcode Functions',xpReward:200,
+    levels:[
+      {name:'Function Basics',desc:'Declare, define, call — DRY principle',xp:30},
+      {name:'Parameters & Return Values',desc:'Data pass karna, return karna',xp:30},
+      {name:'Recursion',desc:'Function khud ko call kare — stack overflow samjho',xp:40},
+      {name:'Scope & Storage Class',desc:'local, global, static, extern variables',xp:35},
+      {name:'Function Pointers',desc:'Functions ko variable ki tarah use karo',xp:45},
+    ]
+  },
+  {id:'arrays',icon:'📦',color:'#22d3ee',name:'Arrays & Strings',sub:'Data collections — Buffer Overflow ka real base!',diff:'medium',cyber:'Buffer Overflow Foundation',xpReward:250,
+    levels:[
+      {name:'1D Arrays',desc:'Declare, initialize, access, traverse',xp:30},
+      {name:'2D Arrays & Matrix',desc:'Rows aur columns — grids aur tables',xp:35},
+      {name:'Strings — char Arrays',desc:'Text C mein kaise store hoti hai + null terminator',xp:35},
+      {name:'String Functions — string.h',desc:'strlen, strcpy, strcat, strcmp, strncpy',xp:40},
+      {name:'Array of Strings',desc:'Multiple strings ek saath handle karna',xp:35},
+      {name:'Buffer Overflow Concept',desc:'Array bounds se zyada data daalna — real exploit idea',xp:55},
+    ]
+  },
+  {id:'pointers',icon:'🎯',color:'#ef4444',name:'Pointers',sub:'C ka superpower — Memory directly control karo',diff:'medium',cyber:'Memory Exploitation',xpReward:300,
+    levels:[
+      {name:'Pointer Basics — & aur *',desc:'Memory address kya hai, pointer declare karna',xp:40},
+      {name:'Pointer Arithmetic',desc:'ptr++, ptr-- — array traversal',xp:40},
+      {name:'Pointers & Arrays',desc:'Array name = pointer — connection samjho',xp:45},
+      {name:'Pointers & Functions',desc:'Call by reference — actual values change karo',xp:45},
+      {name:'Double Pointers (**)',desc:'Pointer to pointer — dynamic arrays',xp:50},
+      {name:'NULL & Void Pointers',desc:'Special pointer types aur uses',xp:40},
+      {name:'Common Pointer Bugs',desc:'Segfault, dangling pointer, memory leak — hacker targets',xp:40},
+    ]
+  },
+  {id:'memory',icon:'🧠',color:'#a855f7',name:'Memory Management',sub:'malloc, free, heap — Manual memory ka full control',diff:'hard',cyber:'Heap Exploitation',xpReward:350,
+    levels:[
+      {name:'Stack vs Heap — Memory Layout',desc:'Program memory kaise organize hoti hai',xp:45},
+      {name:'malloc() & calloc()',desc:'Runtime pe heap mein memory allocate karna',xp:45},
+      {name:'realloc() & free()',desc:'Memory resize aur release — memory lifecycle',xp:45},
+      {name:'Memory Leaks',desc:'free() nahi kiya toh kya hoga — resource exhaustion',xp:50},
+      {name:'Use-After-Free Vulnerability',desc:'Freed memory access — real CVE exploit technique',xp:65},
+    ]
+  },
+  {id:'structures',icon:'🏗️',color:'#fbbf24',name:'Structures & Unions',sub:'Custom data types — Real-world data model karo',diff:'medium',cyber:'Binary Protocol Analysis',xpReward:250,
+    levels:[
+      {name:'struct Basics',desc:'Custom data type banao — multiple related fields',xp:35},
+      {name:'Nested Structures',desc:'struct ke andar struct — complex hierarchical data',xp:40},
+      {name:'Pointers to Struct — Arrow Operator',desc:'-> operator, dynamic struct allocation',xp:45},
+      {name:'union',desc:'Same memory, alag types — space optimization',xp:40},
+      {name:'typedef',desc:'Type alias banao — cleaner, readable code',xp:35},
+      {name:'Bit Fields',desc:'Memory-efficient structs — network protocol headers',xp:45},
+    ]
+  },
+  {id:'typedef_enum',icon:'🏷️',color:'#6366f1',name:'typedef & enum',sub:'Constants aur type aliases — Clean code likhna seekho',diff:'easy',cyber:'Protocol Flag Analysis',xpReward:150,
+    levels:[
+      {name:'typedef — Type Aliases',desc:'int ki jagah custom naam — readable code',xp:25},
+      {name:'enum — Named Constants',desc:'Days, months, status codes — named values',xp:30},
+      {name:'enum with Bit Flags',desc:'Multiple options ek variable mein — OS permissions',xp:35},
+      {name:'typedef Function Pointers',desc:'Complex pointer types simplify karo',xp:40},
+    ]
+  },
+  {id:'preprocessor',icon:'⚙️',color:'#ec4899',name:'Preprocessor & Macros',sub:'#define, #include, #ifdef — Compilation se pehle',diff:'medium',cyber:'Malware Obfuscation',xpReward:200,
+    levels:[
+      {name:'#define & Constants',desc:'Macros, symbolic constants — magic numbers avoid karo',xp:30},
+      {name:'#include & Header Files',desc:'Code modular banao — .h files ka system',xp:30},
+      {name:'Conditional Compilation',desc:'#ifdef, #ifndef, #endif — platform-specific code',xp:35},
+      {name:'Macro Functions & Pitfalls',desc:'Function-like macros aur unke dangers',xp:40},
+    ]
+  },
+  {id:'files',icon:'📁',color:'#64748b',name:'File Handling',sub:'Files read/write — Data persist karna seekho',diff:'medium',cyber:'Log File Analysis',xpReward:200,
+    levels:[
+      {name:'File Open/Close — fopen/fclose',desc:'FILE pointer, open modes (r,w,a,rb,wb)',xp:30},
+      {name:'Text File Read/Write',desc:'fprintf, fscanf, fgets, fputs',xp:35},
+      {name:'Binary File Operations',desc:'fread, fwrite — raw binary data read/write',xp:40},
+      {name:'File Pointer & Seeking',desc:'fseek, ftell, rewind — random file access',xp:40},
+      {name:'Error Handling in Files',desc:'ferror, feof, perror — robust file code',xp:35},
+    ]
+  },
+  {id:'bitops',icon:'⚔️',color:'#06b6d4',name:'Bit Manipulation',sub:'AND, OR, XOR, shifts — Hacking mein bahut kaam aata hai',diff:'hard',cyber:'XOR Encryption & Flags',xpReward:300,
+    levels:[
+      {name:'Number Systems — Binary, Hex, Octal',desc:'Decimal to binary conversion, hex notation',xp:35},
+      {name:'Bitwise Operators — &, |, ^, ~, <<, >>',desc:'Bit-level operations samjho',xp:40},
+      {name:'Bit Masking Techniques',desc:'Set, clear, toggle, check specific bits',xp:45},
+      {name:'XOR Tricks',desc:'Swap without temp, XOR cipher — encryption basics',xp:50},
+      {name:'Practical: XOR Cipher Program',desc:'Simple file encryption tool C mein banao',xp:55},
+    ]
+  },
+  {id:'multifile',icon:'📂',color:'#0ea5e9',name:'Multi-file Programs',sub:'Header files, extern — Professional code structure',diff:'medium',cyber:'Malware Module Architecture',xpReward:200,
+    levels:[
+      {name:'Header Files (.h) Banana',desc:'Function declarations, include guards',xp:30},
+      {name:'Source Files (.c) Split Karna',desc:'Implementation files, compilation units',xp:35},
+      {name:'extern Variables',desc:'Variables across multiple files share karna',xp:35},
+      {name:'Makefile Basics',desc:'Multiple files ek saath compile karna',xp:45},
+    ]
+  },
+  {id:'stdlib',icon:'📚',color:'#8b5cf6',name:'C Standard Library',sub:'math.h, time.h, stdlib.h — Built-in power tools',diff:'medium',cyber:'Timestamp Manipulation & RNG',xpReward:200,
+    levels:[
+      {name:'stdlib.h — Utility Functions',desc:'rand(), srand(), atoi(), exit(), abort()',xp:30},
+      {name:'math.h — Mathematics',desc:'sqrt(), pow(), floor(), ceil(), fabs()',xp:30},
+      {name:'time.h — Time & Date',desc:'time(), localtime(), strftime() — timestamp tricks',xp:35},
+      {name:'ctype.h — Character Classification',desc:'isalpha(), isdigit(), toupper(), tolower()',xp:30},
+      {name:'string.h Deep Dive',desc:'memcpy, memmove, memset, memcmp — memory ops',xp:35},
+    ]
+  },
+  {id:'algorithms',icon:'🔢',color:'#7c3aed',name:'Data Structures & Algorithms',sub:'Sort, search, linked list — GATE aur interviews ke liye',diff:'hard',cyber:'Algorithm Complexity in Attacks',xpReward:400,
+    levels:[
+      {name:'Sorting — Bubble, Selection, Insertion',desc:'O(n²) sorts — simple se shuru karo',xp:45},
+      {name:'Sorting — Merge Sort & Quick Sort',desc:'O(n log n) — efficient divide & conquer',xp:55},
+      {name:'Searching — Linear & Binary',desc:'Sequential vs divide & conquer search',xp:40},
+      {name:'Linked List — Singly',desc:'Dynamic node-based structure using pointers',xp:60},
+      {name:'Stack & Queue',desc:'LIFO aur FIFO — program call stack samjho',xp:50},
+      {name:'Recursion Problems',desc:'Fibonacci, factorial, Tower of Hanoi',xp:50},
+    ]
+  },
+  {id:'security',icon:'🔓',color:'#dc2626',name:'C Security Vulnerabilities',sub:'Format String, Integer Overflow — Real exploits seekho',diff:'hard',cyber:'Real Exploit Techniques',xpReward:400,
+    levels:[
+      {name:'Buffer Overflow — Deep Dive',desc:'Stack smashing, return address overwrite',xp:70},
+      {name:'Format String Vulnerability',desc:'printf(user_input) danger — %x %n exploitation',xp:65},
+      {name:'Integer Overflow & Underflow',desc:'MAX_INT+1 = negative — type confusion attacks',xp:60},
+      {name:'Secure Coding Practices',desc:'strncpy vs strcpy, bounds checking, safe APIs',xp:55},
+      {name:'Practical: Vulnerable Program Analyze',desc:'Intentionally buggy code identify aur fix karo',xp:75},
+    ]
+  },
+  {id:'network',icon:'🌐',color:'#0284c7',name:'Socket Programming',sub:'TCP/UDP sockets — Network tools banao C mein',diff:'hard',cyber:'Network Tool Development',xpReward:350,
+    levels:[
+      {name:'Network Basics in C',desc:'sys/socket.h, IP, ports, protocols',xp:40},
+      {name:'TCP Client Program',desc:'Server se connect karo, data send/receive',xp:50},
+      {name:'TCP Server Program',desc:'Port pe listen karo, clients accept karo',xp:55},
+      {name:'UDP Socket Program',desc:'Connectionless — DNS jaisi communication',xp:50},
+      {name:'Practical: Simple Port Scanner',desc:'Nmap jaisa basic port scanner C mein banao',xp:65},
+    ]
+  },
+  {id:'advanced',icon:'🔴',color:'#b91c1c',name:'Advanced C & System Programming',sub:'Signals, fork, GDB — System level C mastery',diff:'hard',cyber:'Exploit Development',xpReward:500,
+    levels:[
+      {name:'Command Line Arguments',desc:'argc, argv — CLI tools banana',xp:45},
+      {name:'Environment Variables',desc:'getenv(), putenv() — system settings access',xp:45},
+      {name:'Signal Handling',desc:'SIGSEGV, SIGTERM, SIGINT — crash handling',xp:55},
+      {name:'Process & fork()',desc:'New process create karna — Unix system call',xp:65},
+      {name:'Pipes & IPC',desc:'Process ke beech communication — pipe()',xp:65},
+      {name:'GDB Debugging',desc:'Breakpoints, stack inspection, exploit analysis',xp:75},
+    ]
+  },
+  {id:'projects',icon:'🚀',color:'#7c3aed',name:'Mini Security Projects in C',sub:'Real-world C projects — Portfolio banao, skills prove karo',diff:'hard',cyber:'Security Tool Development',xpReward:500,
+    levels:[
+      {name:'Password Generator',desc:'Secure random passwords banao — C mein',xp:60},
+      {name:'File Encryptor (XOR)',desc:'Simple file encryption/decryption tool',xp:70},
+      {name:'Log File Analyzer',desc:'Security logs parse karo aur suspicious activity dhundo',xp:65},
+      {name:'Simple Port Scanner',desc:'TCP connect scan implement karo',xp:80},
+      {name:'Memory Dump Analyzer',desc:'Binary data read aur hex mein interpret karo',xp:75},
+    ]
+  },
+];
+
+const BADGES = [
+  {id:'first',icon:'🌱',name:'First Step',desc:'App open kiya!',earned:true},
+  {id:'curious',icon:'💡',name:'Curious Mind',desc:'Pehla lesson complete karo'},
+  {id:'fire',icon:'🔥',name:'On Fire',desc:'3 din streak banao'},
+  {id:'coder',icon:'⚡',name:'Code Runner',desc:'Pehla code run karo'},
+  {id:'quizmaster',icon:'🧠',name:'Quiz Master',desc:'10 quiz sahi karo'},
+  {id:'pointer',icon:'🎯',name:'Pointer Pro',desc:'Pointers topic complete karo'},
+  {id:'memory',icon:'🧬',name:'Memory Hacker',desc:'Memory Management complete karo'},
+  {id:'bits',icon:'⚔️',name:'Bit Warrior',desc:'Bit Manipulation complete karo'},
+  {id:'network',icon:'🌐',name:'Socket Master',desc:'Socket Programming complete karo'},
+  {id:'security',icon:'🔓',name:'Exploit Analyst',desc:'C Security Vulnerabilities complete karo'},
+  {id:'xp500',icon:'🏅',name:'XP Hunter',desc:'500 XP earn karo'},
+  {id:'xp1000',icon:'🥇',name:'XP Legend',desc:'1000 XP earn karo'},
+  {id:'xp5000',icon:'👑',name:'XP King',desc:'5000 XP earn karo'},
+  {id:'algo',icon:'🔢',name:'Algorithm God',desc:'DSA topic complete karo'},
+  {id:'cyber',icon:'💀',name:'Cyber Warrior',desc:'Sabhi 18 topics complete karo'},
+];
+
+const ROADMAP = [
+  {phase:1,name:'C Foundations — Yahan Shuru Karo',time:'Weeks 1-4',items:['C Language Basics ← Abhi yahan ho!','Control Flow — if-else, loops','Functions — code reuse','Arrays & Strings — buffer overflow base'],current:0},
+  {phase:2,name:'C Power Features',time:'Weeks 5-8',items:['Pointers — memory ka superpower','Memory Management — malloc/free','Structures & Unions','typedef & enum'],current:-1},
+  {phase:3,name:'Intermediate C',time:'Weeks 9-12',items:['File Handling','Preprocessor & Macros','C Standard Library','Multi-file Programs'],current:-1},
+  {phase:4,name:'Advanced C Topics',time:'Weeks 13-18',items:['Bit Manipulation — XOR cipher','Data Structures & Algorithms','C Security Vulnerabilities — real exploits!'],current:-1},
+  {phase:5,name:'System & Network Programming',time:'Weeks 19-24',items:['Socket Programming — tools banao','Advanced C & System','GDB Debugging — exploit analysis'],current:-1},
+  {phase:6,name:'Projects & Career',time:'Month 6+',items:['Mini Security Projects in C','CTF Challenges — PicoCTF, pwn.college','Resume + Portfolio banana','Internship / Bug Bounty start'],current:-1},
+];
+
+const OFFLINE_QUIZ = [
+  {q:'C language kab aur kahan banaya gaya?',opts:['1960, MIT','1972, Bell Labs','1983, Stanford','1991, Microsoft'],ans:1,exp:'Dennis Ritchie ne 1972 mein Bell Labs mein C banaya — UNIX OS likhne ke liye!'},
+  {q:'C mein integer variable kaise declare karte hain?',opts:['integer x;','Int x;','int x;','number x;'],ans:2,exp:'C case-sensitive hai — int (lowercase) sahi hai.'},
+  {q:'printf() function kahan se aata hai?',opts:['stdlib.h','math.h','string.h','stdio.h'],ans:3,exp:'stdio.h = Standard I/O. printf(), scanf(), fopen() sab yahan se aate hain.'},
+  {q:'int data type kitne bytes ka hota hai (32-bit)?',opts:['1 byte','2 bytes','4 bytes','8 bytes'],ans:2,exp:'int = 4 bytes = 32 bits. Range: -2,147,483,648 to +2,147,483,647'},
+  {q:'Pointer declare karne ka sahi syntax?',opts:['pointer int p;','int &p;','int p*;','int *p;'],ans:3,exp:'int *p; — asterisk (*) batata hai ki p ek pointer hai.'},
+  {q:'& (address-of) operator kya karta hai?',opts:['Multiply karta hai','Variable ka memory address deta hai','Dereference karta hai','Bitwise AND'],ans:1,exp:'&variable = us variable ka memory location/address. printf("%p",&x) se dekhte hain.'},
+  {q:'for(int i=0; i<10; i++) loop kitni baar chalega?',opts:['9 baar','10 baar','11 baar','0 baar'],ans:1,exp:'i=0,1,2,...,9 — jab i=10 hoga, i<10 false hoga. Total 10 iterations.'},
+  {q:'C mein string asliyat mein kya hoti hai?',opts:['string type variable','int array','char array ending in \\0','float array'],ans:2,exp:'C string = char array + null terminator \\0. "Hello" = {H,e,l,l,o,\\0}'},
+  {q:'malloc() function kya return karta hai?',opts:['int*','void*','char*','NULL always'],ans:1,exp:'malloc() returns void* (generic pointer). Cast karo: int* p = (int*)malloc(sizeof(int));'},
+  {q:'Buffer overflow kab hoti hai?',opts:['Buffer full hone par','Array ki limit se zyada data daalne par','malloc fail hone par','printf use karne par'],ans:1,exp:'char buf[10] mein 20 bytes daalo — extra bytes neighboring memory overwrite kar dega! Yahi hacking ka base hai.'},
+  {q:'Recursion mein base case kyun zaroori hai?',opts:['Faster execution','Stack overflow rokne ke liye','Memory save','Syntax requirement'],ans:1,exp:'Base case nahi = infinite recursion = stack overflow = crash! Hackers ise exploit karte hain.'},
+  {q:'XOR (^) ka khaas property kya hai?',opts:['A^A = 1','A^0 = 0','A^A = 0, A^0 = A','A^B != B^A'],ans:2,exp:'A XOR A = 0, A XOR 0 = A — yahi XOR cipher mein use hota hai!'},
+  {q:'scanf() mein & kyun lagate hain variable ke aage?',opts:['Syntax requirement','scanf ko value dalni hai — address chahiye','Pointer banana','Optional hai'],ans:1,exp:'scanf ko variable mein value daalni hoti hai — isliye address dete hain. scanf("%d",&num)'},
+  {q:'C mein by default function arguments kaise pass hote hain?',opts:['By reference','By value','By pointer','By name'],ans:1,exp:'C mein pass by value — function ko copy milti hai, original change nahi hoti.'},
+  {q:'NULL pointer dereference karne se kya hoga?',opts:['0 return karega','Segmentation Fault — crash!','NULL return karega','Compile error'],ans:1,exp:'NULL pointer (address 0) dereference = Segfault. Common vulnerability bhi hai!'},
+  {q:'char str[] = "Hello" — strlen() se kya milega?',opts:['6','5','4','7'],ans:1,exp:'strlen() null terminator \\0 count nahi karta. "Hello" = 5 characters.'},
+  {q:'free() ke baad wahi pointer use karna kaisi vulnerability hai?',opts:['Safe hai','Use-After-Free — critical vulnerability!','Auto NULL ho jaata hai','Compile error'],ans:1,exp:'Use-After-Free ek serious CVE-level vulnerability hai. free() ke baad ptr = NULL zaroor karo!'},
+  {q:'sizeof(int*) kitna hoga 64-bit system mein?',opts:['4 bytes','8 bytes','Depends on type','2 bytes'],ans:1,exp:'64-bit mein sabhi pointers 8 bytes ke hote hain — int* ho ya char* ho.'},
+  {q:'Quick Sort ka average case time complexity kya hai?',opts:['O(n²)','O(n log n)','O(n)','O(log n)'],ans:1,exp:'Quick Sort average O(n log n), worst O(n²). Merge Sort guaranteed O(n log n) hai.'},
+  {q:'Format String vulnerability kab hoti hai?',opts:['printf(str) — user input direct daalne par','scanf use karne par','malloc fail hone par','Array overflow par'],ans:0,exp:'printf(user_input) dangerous! User "%x %x %n" likh ke memory leak ya write kar sakta hai!'},
+];
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let state = {
+  xp:0, streak:1, lessonsComplete:0, topicsComplete:0,
+  online:false, apiKey:null,
+  currentTopic:null, currentLevel:null,
+  topicProgress:{}, badges:{}
+};
+
+// ══════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════
+function escHtml(t) {
+  if(!t) return '';
+  const d = document.createElement('div');
+  d.textContent = t;
+  return d.innerHTML;
+}
+
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function addXP(amt) {
+  state.xp += amt;
+  const p = document.getElementById('xpPopup');
+  p.textContent = '+' + amt + ' XP ⚡';
+  p.classList.add('show');
+  setTimeout(() => p.classList.remove('show'), 2000);
+  updateStats();
+  saveProgress();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => { s.style.display='none'; s.classList.remove('active'); });
+  const s = document.getElementById(id);
+  if(s) { s.style.display='block'; s.classList.add('active'); }
+}
+
+// ══════════════════════════════════════
+// LANG SELECT — EVENT LISTENERS (no inline onclick)
+// ══════════════════════════════════════
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('selected'));
+    this.classList.add('selected');
+    const lang = this.dataset.lang;
+    const names = {c:'C Language',cpp:'C++',python:'Python',linux:'Linux/Bash'};
+    const sb = document.getElementById('langStartBtn');
+    sb.textContent = '🚀 ' + names[lang] + ' Shuru Karo';
+    sb.dataset.lang = lang;
+  });
+});
+
+document.getElementById('langStartBtn').addEventListener('click', function() {
+  const lang = this.dataset.lang || 'c';
+  if(lang !== 'c') { showToast('Coming Soon! Abhi sirf C available hai 😊','info'); return; }
+  showScreen('appScreen');
+  initApp();
+});
+
+// ══════════════════════════════════════
+// MODE TOGGLE
+// ══════════════════════════════════════
+document.getElementById('modeToggle').addEventListener('click', function() {
+  if(!state.online) {
+    const key = prompt('Anthropic API Key dalo (sk-ant-...):\n\nFree mein: console.anthropic.com');
+    if(key && key.startsWith('sk-')) {
+      state.apiKey = key; state.online = true;
+      this.textContent = '🟢 ONLINE'; this.classList.add('online');
+      showToast('✅ Online mode! Unlimited AI ready!','success');
+    } else if(key) { showToast('Invalid key. sk-ant- se shuru honi chahiye.','error'); }
+  } else {
+    state.online = false; state.apiKey = null;
+    this.textContent = 'OFFLINE'; this.classList.remove('online');
+    showToast('Offline mode mein wapas aa gaye','info');
+  }
+});
+
+// ══════════════════════════════════════
+// INIT APP
+// ══════════════════════════════════════
+function initApp() {
+  loadProgress();
+  renderTopics();
+  renderRoadmap();
+  renderBadges();
+  renderProgress();
+  setupBottomNav();
+  setupLessonTabs();
+  setupPathBtns();
+  document.getElementById('levelBackBtn').addEventListener('click', () => showScreen('appScreen'));
+  document.getElementById('lessonBackBtn').addEventListener('click', () => {
+    showScreen('levelScreen');
+    openTopic(state.currentTopic.id);
+  });
+}
+
+function setupBottomNav() {
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      this.classList.add('active');
+      const tab = this.dataset.tab;
+      ['home','roadmap','future','badges','progress'].forEach(t => {
+        const el = document.getElementById(t+'Tab');
+        if(el) el.style.display = t===tab ? 'block' : 'none';
+      });
+      if(tab==='progress') renderProgress();
+      if(tab==='badges') renderBadges();
+    });
+  });
+}
+
+function setupLessonTabs() {
+  document.querySelectorAll('.l-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.l-tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      const name = this.dataset.tab;
+      ['theory','practice','quiz'].forEach(t => {
+        document.getElementById(t+'Content').style.display = t===name ? 'block' : 'none';
+      });
+      if(name==='practice' && state.currentTopic) loadPractice(state.currentTopic.id, state.currentLevel);
+      if(name==='quiz' && state.currentTopic) loadQuiz(state.currentTopic.id, state.currentLevel);
+    });
+  });
+}
+
+function setupPathBtns() {
+  document.querySelectorAll('.path-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.path-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      const path = this.dataset.path;
+      ['gatePath','offensivePath','bothPath'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+      });
+      const map = {gate:'gatePath',offensive:'offensivePath',both:'bothPath'};
+      const el = document.getElementById(map[path]);
+      if(el) el.style.display = 'block';
+    });
+  });
+}
+
+// ══════════════════════════════════════
+// RENDER TOPICS — FIXED (no inline onclick)
+// ══════════════════════════════════════
+function renderTopics() {
+  const grid = document.getElementById('topicsGrid');
+  grid.innerHTML = TOPICS.map((t,i) => {
+    const prog = state.topicProgress[t.id] || 0;
+    const pct = Math.round((prog / t.levels.length) * 100);
+    const locked = i > 0 && (state.topicProgress[TOPICS[i-1].id] || 0) < 1;
+    return '<div class="topic-card' + (locked?' locked':pct===100?' completed':'') + '" data-topic="' + t.id + '" data-locked="' + locked + '">' +
+      '<div class="tc-header">' +
+      '<div class="tc-icon" style="background:' + t.color + '22;border:2px solid ' + t.color + '44">' + t.icon + '</div>' +
+      '<div class="tc-info"><div class="tc-title">' + t.name + '</div><div class="tc-sub">' + t.sub + '</div>' +
+      '<div class="tc-meta"><span class="tc-tag tag-' + t.diff + '">' + t.diff.toUpperCase() + '</span>' +
+      '<span class="tc-tag tag-cyber">🔐 ' + t.cyber + '</span>' +
+      '<span class="tc-tag" style="background:rgba(251,191,36,.1);color:#fbbf24">+' + t.xpReward + 'XP</span></div></div>' +
+      '<div class="tc-arrow">' + (locked?'🔒':pct===100?'✅':'›') + '</div></div>' +
+      '<div class="tc-progress"><div class="tc-progress-fill" style="width:' + pct + '%"></div></div></div>';
+  }).join('');
+
+  // Attach click listeners AFTER rendering
+  grid.querySelectorAll('.topic-card').forEach(card => {
+    card.addEventListener('click', function() {
+      if(this.dataset.locked === 'true') {
+        showToast('Pehle previous topic complete karo!','info');
+      } else {
+        openTopic(this.dataset.topic);
+      }
+    });
+  });
+  updateProgress();
+}
+
+// ══════════════════════════════════════
+// OPEN TOPIC → LEVEL SCREEN — FIXED
+// ══════════════════════════════════════
+function openTopic(topicId) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  if(!topic) return;
+  state.currentTopic = topic;
+  document.getElementById('levelTopicName').textContent = topic.icon + ' ' + topic.name;
+  document.getElementById('levelTopicSub').textContent = topic.sub;
+  const prog = state.topicProgress[topic.id] || 0;
+  const list = document.getElementById('levelsList');
+  list.innerHTML = topic.levels.map((lv, i) => {
+    const done = i < prog;
+    const unlocked = i <= prog;
+    return '<div class="level-item ' + (done?'completed':unlocked?'unlocked':'locked') + '" data-level="' + i + '" data-unlocked="' + unlocked + '">' +
+      '<div class="level-num">' + (done?'✓':i+1) + '</div>' +
+      '<div class="level-info"><div class="level-name">Level ' + (i+1) + ': ' + lv.name + '</div><div class="level-desc">' + lv.desc + '</div></div>' +
+      '<div class="level-xp">+' + lv.xp + 'XP</div></div>';
+  }).join('');
+
+  // Attach listeners
+  list.querySelectorAll('.level-item').forEach(item => {
+    item.addEventListener('click', function() {
+      const idx = parseInt(this.dataset.level);
+      if(this.dataset.unlocked === 'true') {
+        openLevel(idx);
+      } else {
+        showToast('Pehle pichli level complete karo!','info');
+      }
+    });
+  });
+  showScreen('levelScreen');
+}
+
+// ══════════════════════════════════════
+// OPEN LEVEL → LESSON
+// ══════════════════════════════════════
+function openLevel(idx) {
+  state.currentLevel = idx;
+  const lv = state.currentTopic.levels[idx];
+  document.getElementById('lessonTitle').textContent = 'Level ' + (idx+1) + ': ' + lv.name;
+  document.querySelectorAll('.l-tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  document.getElementById('theoryContent').style.display = 'block';
+  document.getElementById('practiceContent').style.display = 'none';
+  document.getElementById('quizContent').style.display = 'none';
+  loadTheory(state.currentTopic.id, idx);
+  showScreen('lessonScreen');
+}
+
+// ══════════════════════════════════════
+// THEORY
+// ══════════════════════════════════════
+function loadTheory(topicId, levelIdx) {
+  const box = document.getElementById('theoryContent');
+  const offline = getOfflineTheory(topicId, levelIdx);
+  if(state.online) {
+    box.innerHTML = '<div class="ai-section"><div class="ai-header"><div class="ai-dot"></div><div class="ai-title">AI Theory Generator</div><span class="online-badge">ONLINE</span></div><button class="ai-gen-btn" id="genTheoryBtn">🤖 AI se Deep Theory Generate Karo</button></div>' + offline;
+    document.getElementById('genTheoryBtn').addEventListener('click', () => genAITheory(topicId, levelIdx));
+  } else {
+    box.innerHTML = offline;
+  }
+}
+
+async function genAITheory(topicId, levelIdx) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  const lv = topic.levels[levelIdx];
+  const btn = document.getElementById('genTheoryBtn');
+  btn.innerHTML = '<span class="ai-spinner"></span> AI soch rahi hai...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':state.apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,
+        system:'Tu C programming aur cybersecurity teacher hai. Hinglish mein padhata hai. HTML use karo: h2, h3, p tags. Code mein pre tags use karo. Cybersecurity connection zaroor batao.',
+        messages:[{role:'user',content:'Topic: ' + topic.name + '\nLevel: ' + lv.name + '\nDesc: ' + lv.desc + '\n\nDetailed lesson do — theory, code example, cybersecurity connection. 500-700 words.'}]
+      })
+    });
+    const data = await res.json();
+    if(data.content?.[0]?.text) {
+      const div = document.createElement('div');
+      div.className = 'theory-block';
+      div.style.borderColor = 'rgba(34,211,238,.3)';
+      div.innerHTML = '<div style="color:var(--cyan);font-size:12px;font-weight:700;margin-bottom:12px">🤖 AI Generated Theory</div>' + data.content[0].text;
+      document.getElementById('theoryContent').appendChild(div);
+      btn.textContent = '✅ AI Theory Load!'; btn.disabled = false;
+      addXP(10); showToast('+10 XP — AI theory padhi!','success');
+    }
+  } catch(e) { btn.textContent = '❌ Error — Retry Karo'; btn.disabled = false; showToast('API error. Key check karo.','error'); }
+}
+
+// ══════════════════════════════════════
+// PRACTICE — FIXED (no inline onclick)
+// ══════════════════════════════════════
+function loadPractice(topicId, levelIdx) {
+  const box = document.getElementById('practiceContent');
+  const lv = state.currentTopic.levels[levelIdx];
+  let aiHtml = '';
+  if(state.online) {
+    aiHtml = '<div class="ai-section"><div class="ai-header"><div class="ai-dot"></div><div class="ai-title">AI Practice Generator</div><span class="online-badge">UNLIMITED</span></div><button class="ai-gen-btn" id="genPracticeBtn">🤖 Naya Practice Problem Generate Karo</button><div id="aiPracticeResult"></div></div>';
+  }
+  box.innerHTML = aiHtml + '<div class="practice-area"><div class="pa-header"><span class="pa-title">💻 ' + escHtml(lv.name) + '</span><span style="font-size:11px;color:var(--text2)">Code likhke test karo</span></div><textarea class="pa-code" id="codeEditor"></textarea><div class="pa-footer"><button class="run-btn" id="runCodeBtn">▶ Run Code</button><button class="hint-btn" id="hintBtn">💡 Hint</button></div><div class="output-box" id="outputBox">// Output yahan aayega...</div></div><button class="complete-btn" id="completeLevelBtn">✅ Level Complete Karo (+' + lv.xp + ' XP)</button>';
+
+  // Set code directly (bypasses HTML entity issues)
+  document.getElementById('codeEditor').value = getOfflinePractice(topicId, levelIdx);
+
+  // Attach event listeners
+  document.getElementById('runCodeBtn').addEventListener('click', runCode);
+  document.getElementById('hintBtn').addEventListener('click', () => getHint(topicId, levelIdx));
+  document.getElementById('completeLevelBtn').addEventListener('click', completeLevel);
+  if(state.online) {
+    const gpb = document.getElementById('genPracticeBtn');
+    if(gpb) gpb.addEventListener('click', () => genAIPractice(topicId, levelIdx));
+  }
+}
+
+function runCode() {
+  const code = document.getElementById('codeEditor').value;
+  const out = document.getElementById('outputBox');
+  const printfs = [...code.matchAll(/printf\s*\(\s*"([^"\\]*(\\.[^"\\]*)*)"/g)];
+  if(printfs.length > 0) {
+    let result = '';
+    printfs.forEach(m => {
+      let s = m[1].replace(/\\n/g,'\n').replace(/\\t/g,'\t');
+      s = s.replace(/%d|%i/g,'[int]').replace(/%.?[0-9]*f/g,'[float]').replace(/%s/g,'[string]').replace(/%c/g,'[char]').replace(/%p/g,'[addr]').replace(/%lu|%zu/g,'[size]').replace(/%x|%X/g,'[hex]');
+      result += s;
+    });
+    out.className = 'output-box';
+    out.textContent = '$ ./program\n' + result;
+    addXP(5); showToast('✅ Code run kiya! +5 XP','success');
+    if(!state.badges['coder']) { state.badges['coder'] = true; showToast('🏅 Badge: Code Runner!','success'); saveProgress(); }
+  } else {
+    out.className = 'output-box error';
+    out.textContent = '// printf() nahi mili.\n// Output ke liye printf("...") use karo.';
+  }
+}
+
+function getHint(topicId, levelIdx) {
+  if(state.online) genAIHint(topicId, levelIdx);
+  else showToast('Online mode mein hints milte hain! API key dalo.','info');
+}
+
+async function genAIHint(topicId, levelIdx) {
+  const lv = TOPICS.find(t => t.id === topicId).levels[levelIdx];
+  const code = document.getElementById('codeEditor').value;
+  showToast('💡 Hint aa rahi hai...','info');
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':state.apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:150,
+        system:'C programming tutor. Ek short hint do, answer mat do. Hinglish, 1-2 sentences.',
+        messages:[{role:'user',content:'Topic: ' + lv.name + '. Code:\n' + code + '\nEk hint do.'}]
+      })
+    });
+    const data = await r.json();
+    showToast('💡 ' + (data.content?.[0]?.text || 'Hint unavailable'),'info');
+  } catch(e) { showToast('Hint error.','error'); }
+}
+
+async function genAIPractice(topicId, levelIdx) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  const lv = topic.levels[levelIdx];
+  const res = document.getElementById('aiPracticeResult');
+  res.innerHTML = '<div class="ai-loading"><span class="ai-spinner"></span> Naya problem ban raha hai...</div>';
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':state.apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,
+        system:'C programming teacher. Format:\nPROBLEM: [Hinglish description]\nCODE:\n[complete C starter code]\nHINT: [one line]',
+        messages:[{role:'user',content:'Topic: ' + topic.name + ', Level: ' + lv.name + '. Ek unique practice problem do.'}]
+      })
+    });
+    const data = await r.json();
+    const text = data.content?.[0]?.text || '';
+    const codeMatch = text.match(/CODE:\s*\n?([\s\S]*?)(?:HINT:|$)/);
+    const descMatch = text.match(/PROBLEM:\s*([\s\S]*?)(?:\nCODE:|$)/);
+    if(codeMatch?.[1]) document.getElementById('codeEditor').value = codeMatch[1].trim();
+    res.innerHTML = descMatch?.[1] ? '<div class="theory-block" style="margin:8px 0;padding:12px"><strong>🤖 AI Problem:</strong> ' + escHtml(descMatch[1].trim()) + '</div>' : '';
+    addXP(5); showToast('🤖 Naya problem ready! +5 XP','success');
+  } catch(e) { res.innerHTML = '<div class="offline-msg">Error. Dobara try karo.</div>'; }
+}
+
+function completeLevel() {
+  const topic = state.currentTopic;
+  const lv = topic.levels[state.currentLevel];
+  const prev = state.topicProgress[topic.id] || 0;
+  if(state.currentLevel >= prev) {
+    state.topicProgress[topic.id] = state.currentLevel + 1;
+    addXP(lv.xp);
+    state.lessonsComplete++;
+    if(!state.badges['curious']) { state.badges['curious'] = true; showToast('🏅 Badge: Curious Mind!','success'); }
+    if(state.topicProgress[topic.id] >= topic.levels.length) {
+      state.topicsComplete++;
+      addXP(Math.floor(topic.xpReward * 0.5));
+      showToast('🎉 Topic Complete! Bonus XP!','success');
+      checkTopicBadges(topic.id);
+    } else {
+      showToast('✅ Level ' + (state.currentLevel+1) + ' Complete! +' + lv.xp + ' XP','success');
+    }
+    saveProgress(); renderTopics();
+    showScreen('levelScreen');
+    openTopic(topic.id);
+  } else {
+    showToast('Pehle se complete! Agli level try karo.','info');
+  }
+}
+
+// ══════════════════════════════════════
+// QUIZ — FIXED (no inline onclick, no special chars in attrs)
+// ══════════════════════════════════════
+function loadQuiz(topicId, levelIdx) {
+  const box = document.getElementById('quizContent');
+  const q = OFFLINE_QUIZ[Math.floor(Math.random() * OFFLINE_QUIZ.length)];
+  let aiHtml = '';
+  if(state.online) {
+    aiHtml = '<div class="ai-section"><div class="ai-header"><div class="ai-dot"></div><div class="ai-title">AI Quiz</div><span class="online-badge">UNLIMITED</span></div><button class="ai-gen-btn" id="genQuizBtn">🤖 AI Quiz Generate Karo (Unlimited!)</button><div id="aiQuizArea"></div></div>';
+  }
+  box.innerHTML = aiHtml + buildQuizCard(q, 'offline');
+  attachQuizListeners('offline', q);
+  if(state.online) {
+    const gqb = document.getElementById('genQuizBtn');
+    if(gqb) gqb.addEventListener('click', () => genAIQuiz(topicId, levelIdx));
+  }
+}
+
+function buildQuizCard(q, type) {
+  let optsHtml = '';
+  q.opts.forEach((o, i) => {
+    optsHtml += '<div class="quiz-opt" data-idx="' + i + '">' + String.fromCharCode(65+i) + '. ' + escHtml(o) + '</div>';
+  });
+  return '<div class="quiz-card" id="quizCard_' + type + '">' +
+    '<div class="quiz-q">❓ ' + escHtml(q.q) + '</div>' +
+    '<div class="quiz-opts">' + optsHtml + '</div>' +
+    '<div class="quiz-exp" id="quizExp_' + type + '"></div>' +
+    '<button class="next-q-btn" id="nextBtn_' + type + '">➡ Agla Sawaal</button>' +
+    '</div>';
+}
+
+function attachQuizListeners(type, q) {
+  const card = document.getElementById('quizCard_' + type);
+  if(!card) return;
+  card.querySelectorAll('.quiz-opt').forEach(opt => {
+    opt.addEventListener('click', function() {
+      if(card.dataset.answered) return;
+      card.dataset.answered = '1';
+      const chosen = parseInt(this.dataset.idx);
+      card.querySelectorAll('.quiz-opt').forEach((o, i) => {
+        if(i === q.ans) o.classList.add('correct');
+        else if(i === chosen) o.classList.add('wrong');
+      });
+      const expEl = document.getElementById('quizExp_' + type);
+      expEl.textContent = q.exp || '';
+      expEl.classList.add('show');
+      document.getElementById('nextBtn_' + type).classList.add('show');
+      if(chosen === q.ans) { addXP(15); showToast('✅ Sahi! +15 XP','success'); }
+      else { showToast('❌ Galat! Explanation padho','error'); }
+    });
+  });
+  const nb = document.getElementById('nextBtn_' + type);
+  if(nb) {
+    nb.addEventListener('click', () => {
+      if(type === 'offline') {
+        const newQ = OFFLINE_QUIZ[Math.floor(Math.random() * OFFLINE_QUIZ.length)];
+        const c = document.getElementById('quizCard_offline');
+        if(c) { c.outerHTML = buildQuizCard(newQ, 'offline'); attachQuizListeners('offline', newQ); }
+      } else {
+        if(state.currentTopic) genAIQuiz(state.currentTopic.id, state.currentLevel);
+      }
+    });
+  }
+}
+
+async function genAIQuiz(topicId, levelIdx) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  const lv = topic.levels[levelIdx];
+  const area = document.getElementById('aiQuizArea');
+  if(!area) return;
+  area.innerHTML = '<div class="ai-loading"><span class="ai-spinner"></span> AI question generate ho raha hai...</div>';
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':state.apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:400,
+        system:'Generate C programming MCQ as JSON only. Format: {"q":"question","opts":["A","B","C","D"],"ans":0,"exp":"explanation"} — ans is 0-indexed correct option. No markdown, no backticks.',
+        messages:[{role:'user',content:'Topic: ' + topic.name + ', Level: ' + lv.name + '. Generate ONE tricky MCQ.'}]
+      })
+    });
+    const data = await r.json();
+    const raw = (data.content?.[0]?.text || '{}').replace(/```json|```/g,'').trim();
+    const q = JSON.parse(raw);
+    if(q.q && q.opts && typeof q.ans === 'number') {
+      area.innerHTML = buildQuizCard(q, 'ai');
+      attachQuizListeners('ai', q);
+      addXP(5); showToast('🤖 AI question ready!','info');
+    } else { area.innerHTML = '<div class="offline-msg">Quiz generate nahi hua. Dobara try karo.</div>'; }
+  } catch(e) { area.innerHTML = '<div class="offline-msg">Error. Dobara try karo.</div>'; }
+}
+
+// ══════════════════════════════════════
+// ROADMAP
+// ══════════════════════════════════════
+function renderRoadmap() {
+  const cont = document.getElementById('roadmapContent');
+  if(!cont) return;
+  cont.innerHTML = ROADMAP.map(p =>
+    '<div class="rm-phase"><div class="rm-phase-head"><div class="rm-phase-num">' + p.phase + '</div>' +
+    '<div><div class="rm-phase-name">' + p.name + '</div><div class="rm-phase-time">⏱ ' + p.time + '</div></div></div>' +
+    '<div class="rm-items">' + p.items.map((item,i) => '<div class="rm-item' + (i===p.current?' current':'') + '">' + item + '</div>').join('') +
+    '</div></div>'
+  ).join('');
+}
+
+// ══════════════════════════════════════
+// BADGES
+// ══════════════════════════════════════
+function renderBadges() {
+  const grid = document.getElementById('badgesGrid');
+  if(!grid) return;
+  grid.innerHTML = BADGES.map(b => {
+    const earned = b.earned || state.badges[b.id];
+    return '<div class="badge-card' + (earned?' earned':'') + '">' +
+      '<div class="badge-icon' + (earned?'':' badge-locked') + '">' + b.icon + '</div>' +
+      '<div class="badge-name">' + b.name + '</div>' +
+      '<div class="badge-desc">' + b.desc + '</div>' +
+      (earned ? '<div style="color:var(--gold);font-size:10px;margin-top:4px">✓ Earned!</div>' : '') + '</div>';
+  }).join('');
+}
+
+function checkTopicBadges(topicId) {
+  const map = {pointers:'pointer',memory:'memory',bitops:'bits',algorithms:'algo',network:'network',security:'security'};
+  if(map[topicId]) state.badges[map[topicId]] = true;
+  const allDone = TOPICS.every(t => (state.topicProgress[t.id]||0) >= t.levels.length);
+  if(allDone) state.badges['cyber'] = true;
+  saveProgress();
+}
+
+// ══════════════════════════════════════
+// PROGRESS
+// ══════════════════════════════════════
+function renderProgress() {
+  const el = (id) => document.getElementById(id);
+  if(el('pXP')) el('pXP').textContent = state.xp;
+  if(el('pLessons')) el('pLessons').textContent = state.lessonsComplete;
+  if(el('pStreak')) el('pStreak').textContent = state.streak;
+  if(el('pTopics')) el('pTopics').textContent = state.topicsComplete;
+  updateProgress();
+  const list = el('topicProgList');
+  if(!list) return;
+  list.innerHTML = TOPICS.map(t => {
+    const done = state.topicProgress[t.id] || 0;
+    const pct = Math.round((done/t.levels.length)*100);
+    return '<div class="tp-item"><div class="tp-top"><div class="tp-name">' + t.icon + ' ' + t.name + '</div><div class="tp-pct">' + pct + '%</div></div><div class="tp-bar"><div class="tp-fill" style="width:' + pct + '%"></div></div></div>';
+  }).join('');
+}
+
+function updateProgress() {
+  const total = TOPICS.reduce((s,t)=>s+t.levels.length,0);
+  const done = TOPICS.reduce((s,t)=>s+(state.topicProgress[t.id]||0),0);
+  const pct = Math.round((done/total)*100);
+  const e1 = document.getElementById('overallPct');
+  const e2 = document.getElementById('overallBar');
+  if(e1) e1.textContent = pct + '%';
+  if(e2) e2.style.width = pct + '%';
+}
+
+function updateStats() {
+  const e1 = document.getElementById('xpStat');
+  const e2 = document.getElementById('streakStat');
+  if(e1) e1.textContent = state.xp;
+  if(e2) e2.textContent = state.streak;
+  if(state.xp>=500) state.badges['xp500']=true;
+  if(state.xp>=1000) state.badges['xp1000']=true;
+  if(state.xp>=5000) state.badges['xp5000']=true;
+}
+
+// ══════════════════════════════════════
+// SAVE / LOAD
+// ══════════════════════════════════════
+function saveProgress() {
+  try {
+    localStorage.setItem('hacklearn_v3', JSON.stringify({
+      xp:state.xp, streak:state.streak,
+      lessonsComplete:state.lessonsComplete,
+      topicsComplete:state.topicsComplete,
+      topicProgress:state.topicProgress,
+      badges:state.badges
+    }));
+  } catch(e) {}
+}
+function loadProgress() {
+  try {
+    const d = JSON.parse(localStorage.getItem('hacklearn_v3'));
+    if(d) Object.assign(state,d);
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════
+// COPY CODE BUTTON
+// ══════════════════════════════════════
+function copyCode(btn) {
+  const code = btn.nextElementSibling?.textContent || '';
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  }).catch(() => showToast('Copy failed','error'));
+}
+
+// ══════════════════════════════════════
+// OFFLINE THEORY CONTENT
+// ══════════════════════════════════════
+function getOfflineTheory(topicId, levelIdx) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  const lv = topic?.levels[levelIdx];
+  const prebuilt = {
+    'basics_0': '<div class="theory-block"><h2>🔷 C Language — Kya Hai aur Kyun Seekhna Chahiye?</h2><p>C ek <strong>general-purpose, low-level programming language</strong> hai jo Dennis Ritchie ne 1972 mein Bell Labs mein banaya. Yeh duniya ki sabse important language hai.</p><h3>C kahan use hota hai?</h3><p>Linux kernel, Windows NT kernel, embedded systems, game engines, MySQL, aur almost saare security tools C mein hain.</p><h3>Pehla C Program</h3><div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><span class="code-kw">#include</span> <span class="code-str">&lt;stdio.h&gt;</span>\n\n<span class="code-kw">int</span> <span class="code-fn">main</span>() {\n    <span class="code-fn">printf</span>(<span class="code-str">"Hello, Cyber World!\\n"</span>);\n    <span class="code-kw">return</span> <span class="code-num">0</span>;\n}</pre></div><div class="cyber-box"><div class="cb-label">🔐 CYBER CONNECTION</div>C directly memory control karta hai — Buffer Overflow, shellcode writing, exploit development sab C mein hote hain. Agar C nahi aata, hacking ka base nahi rahega.</div><div class="tip-box"><div class="tip-label">💡 COMPILE</div>gcc hello.c -o hello && ./hello</div></div>',
+    'basics_1': '<div class="theory-block"><h2>📦 Variables aur Data Types</h2><p>Variable = naam diya hua memory location. Har variable ka type hota hai jo batata hai kitni memory lagegi.</p><h3>Main Data Types</h3><div class="code-block"><pre><span class="code-kw">int</span>    age = <span class="code-num">20</span>;           <span class="code-cm">// 4 bytes</span>\n<span class="code-kw">float</span>  price = <span class="code-num">99.99</span>;      <span class="code-cm">// 4 bytes</span>\n<span class="code-kw">double</span> pi = <span class="code-num">3.14159265</span>;   <span class="code-cm">// 8 bytes</span>\n<span class="code-kw">char</span>   grade = <span class="code-str">\'A\'</span>;         <span class="code-cm">// 1 byte</span></pre></div><div class="cyber-box"><div class="cb-label">🔐 CYBER CONNECTION</div>Memory size jaanna critical hai! Buffer overflow attack mein array ki size se zyada data daala jaata hai — extra bytes neighboring memory overwrite karte hain.</div></div>',
+    'pointers_0': '<div class="theory-block"><h2>🎯 Pointers — C ka Superpower</h2><p>Pointer ek variable hai jo dusre variable ka <strong>memory address store karta hai</strong>.</p><div class="code-block"><pre><span class="code-kw">int</span> x = <span class="code-num">10</span>;\n<span class="code-kw">int</span> *ptr = &x;    <span class="code-cm">// ptr = x ka address</span>\n\n<span class="code-fn">printf</span>(<span class="code-str">"%d\\n"</span>, x);     <span class="code-cm">// 10</span>\n<span class="code-fn">printf</span>(<span class="code-str">"%p\\n"</span>, ptr);   <span class="code-cm">// 0x7fff... (address)</span>\n<span class="code-fn">printf</span>(<span class="code-str">"%d\\n"</span>, *ptr);  <span class="code-cm">// 10 (dereference)</span>\n\n*ptr = <span class="code-num">99</span>;  <span class="code-cm">// pointer se value change!</span>\n<span class="code-fn">printf</span>(<span class="code-str">"%d\\n"</span>, x);  <span class="code-cm">// 99!</span></pre></div><div class="cyber-box"><div class="cb-label">🔐 CYBER CONNECTION</div>Buffer overflow mein hackers return address (pointer) overwrite karte hain — program ka control apne shellcode par lete hain. ROP chains, Use-After-Free — sab pointer manipulation hai.</div></div>',
+    'memory_0': '<div class="theory-block"><h2>🧠 Stack vs Heap — Memory Layout</h2><h3>Program Memory Ka Structure</h3><div class="code-block"><pre><span class="code-cm">High Addresses ↑</span>\n┌─────────────┐\n│    STACK    │ ← Local variables, function calls\n├─────────────┤\n│      ↓      │\n│    FREE     │\n│      ↑      │\n├─────────────┤\n│    HEAP     │ ← malloc() se allocate\n├─────────────┤\n│    DATA     │ ← Global/static variables\n├─────────────┤\n│    CODE     │ ← Program instructions\n└─────────────┘\n<span class="code-cm">Low Addresses  ↓</span></pre></div><div class="cyber-box"><div class="cb-label">🔐 CYBER CONNECTION</div>Stack overflow = stack overwrite. Heap exploitation = heap chunks manipulate karna. Memory layout samjhna exploit development ka Step 1 hai!</div></div>',
+  };
+  const key = topicId + '_' + levelIdx;
+  return prebuilt[key] || '<div class="theory-block"><h2>' + (lv?.name || 'Theory') + '</h2><p style="color:var(--text2)">' + (lv?.desc || '') + '</p><div class="cyber-box"><div class="cb-label">🔐 CYBER CONNECTION</div>' + (topic?.cyber || 'Is topic ka cybersecurity se direct connection hai.') + '</div><div class="tip-box"><div class="tip-label">💡 ONLINE MODE</div>Online mode enable karo (API key dalo) — AI se is topic ki full, detailed theory pao!</div></div>';
+}
+
+function getOfflinePractice(topicId, levelIdx) {
+  const prebuilt = {
+    'basics_0': '#include <stdio.h>\n\nint main() {\n    // Task: Apna naam aur message print karo\n    printf("Mera naam: ???\\n");\n    printf("Main Cyber Warrior ban raha hoon!\\n");\n    return 0;\n}',
+    'basics_1': '#include <stdio.h>\n\nint main() {\n    int age = 18;\n    float marks = 95.5;\n    char grade = \'A\';\n    \n    // Task: Variables print karo aur sizeof check karo\n    printf("Age: %d\\n", age);\n    printf("Marks: %.1f\\n", marks);\n    printf("Grade: %c\\n", grade);\n    printf("int size: %lu bytes\\n", sizeof(int));\n    printf("char size: %lu byte\\n", sizeof(char));\n    return 0;\n}',
+    'pointers_0': '#include <stdio.h>\n\nint main() {\n    int num = 42;\n    int *ptr;   // pointer declare\n    \n    // Task 1: ptr ko num ka address do\n    ptr = &num;\n    \n    // Task 2: values print karo\n    printf("num ki value: %d\\n", num);\n    printf("num ka address: %p\\n", (void*)ptr);\n    printf("ptr se value: %d\\n", *ptr);\n    \n    // Task 3: pointer se value change karo\n    *ptr = 100;\n    printf("Baad mein num: %d\\n", num);  // 100 hona chahiye!\n    return 0;\n}',
+    'arrays_0': '#include <stdio.h>\n\nint main() {\n    int nums[5] = {10, 20, 30, 40, 50};\n    int sum = 0;\n    \n    // Task: Print karo aur sum/average nikalo\n    for(int i = 0; i < 5; i++) {\n        printf("nums[%d] = %d\\n", i, nums[i]);\n        sum += nums[i];\n    }\n    \n    printf("Sum = %d\\n", sum);\n    printf("Average = %d\\n", sum / 5);\n    return 0;\n}',
+  };
+  const key = topicId + '_' + levelIdx;
+  const lv = TOPICS.find(t => t.id === topicId)?.levels[levelIdx];
+  return prebuilt[key] || '#include <stdio.h>\n\nint main() {\n    // ' + (lv?.name || 'Practice') + '\n    // Yahan apna code likho...\n    \n    printf("Level complete karne ke liye code likho!\\n");\n    return 0;\n}';
+}
+</script>
+
+<script>
+// Service Worker Registration
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/hacklearn/sw.js')
+    .then(() => console.log('SW registered'))
+    .catch(e => console.log('SW error:', e));
+}
+</script>
+</body>
+</html>
