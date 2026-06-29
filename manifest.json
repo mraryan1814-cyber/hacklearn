@@ -1,0 +1,70 @@
+{
+  "name": "HackLearn — C for Cyber Security",
+  "short_name": "HackLearn",
+  "description": "C Programming seekho Cybersecurity ke liye — Step by step, topic by topic. 18 comprehensive topics with AI-powered learning.",
+  "start_url": "/hacklearn/",
+  "scope": "/hacklearn/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a14",
+  "theme_color": "#7c3aed",
+  "lang": "hi",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/home.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "HackLearn Home Screen"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "C Language Topics",
+      "short_name": "Topics",
+      "description": "C ke sabhi topics dekho",
+      "url": "/hacklearn/?tab=home",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Roadmap",
+      "short_name": "Roadmap",
+      "description": "C Programming ka full roadmap",
+      "url": "/hacklearn/?tab=roadmap",
+      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
+    }
+  ]
+}
